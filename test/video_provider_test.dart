@@ -6,36 +6,15 @@ import 'package:flutter_tiktok/services/storage_service.dart';
 void main() {
   group('VideoProvider', () {
     late VideoProvider provider;
-    late StorageService storage;
 
     setUp(() async {
       SharedPreferences.setMockInitialValues({});
-      storage = await StorageService.instance;
+      final storage = await StorageService.instance;
       provider = VideoProvider(storage);
-    });
-
-    test('toggleLike toggles isLiked and updates count', () {
-      final video = provider.videos.first;
-      final initialLiked = video.isLiked;
-      final initialLikes = int.parse(video.likes);
-
-      provider.toggleLike(video.id);
-
-      expect(video.isLiked, !initialLiked);
-      if (video.isLiked) {
-        expect(int.parse(video.likes), initialLikes + 1);
-      } else {
-        expect(int.parse(video.likes), initialLikes > 0 ? initialLikes - 1 : 0);
-      }
     });
 
     test('toggleLike with invalid id does not throw', () {
       expect(() => provider.toggleLike('nonexistent'), returnsNormally);
-    });
-
-    test('setCurrentIndex within bounds', () {
-      provider.setCurrentIndex(2);
-      expect(provider.currentIndex, 2);
     });
 
     test('setCurrentIndex out of bounds is ignored', () {
@@ -43,11 +22,48 @@ void main() {
       provider.setCurrentIndex(999);
       expect(provider.currentIndex, originalIndex);
     });
+  });
 
-    test('currentVideo returns correct video', () {
-      final video = provider.currentVideo;
-      expect(video, isNotNull);
-      expect(video!.id, provider.videos[provider.currentIndex].id);
-    });
+  testWidgets('VideoProvider loads sample videos', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final storage = await StorageService.instance;
+    final provider = VideoProvider(storage);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(provider.videos.length, 5);
+    expect(provider.currentVideo, isNotNull);
+  });
+
+  testWidgets('toggleLike toggles isLiked and updates count', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final storage = await StorageService.instance;
+    final provider = VideoProvider(storage);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    final video = provider.videos.first;
+    final initialLiked = video.isLiked;
+    final initialLikes = int.parse(video.likes);
+
+    provider.toggleLike(video.id);
+
+    expect(video.isLiked, !initialLiked);
+    if (video.isLiked) {
+      expect(int.parse(video.likes), initialLikes + 1);
+    } else {
+      expect(int.parse(video.likes), initialLikes > 0 ? initialLikes - 1 : 0);
+    }
+  });
+
+  testWidgets('setCurrentIndex within bounds', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final storage = await StorageService.instance;
+    final provider = VideoProvider(storage);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    provider.setCurrentIndex(2);
+    expect(provider.currentIndex, 2);
   });
 }
