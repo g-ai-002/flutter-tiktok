@@ -19,6 +19,10 @@
 
 ### 0.1.1 (PATCH) - 修复 Android 构建
 - [x] 升级 Gradle 版本到 9.4.1 修复 Android 构建失败
+- [x] 修复 CI metadata job 缺少 checkout 步骤
+
+### 0.1.2 (PATCH) - 重构优化 (预留)
+- [ ] 代码重构与优化
 
 ## 中期规划 (0.2.x)
 
