@@ -5,8 +5,8 @@ class VideoModel {
   final String description;
   final String url;
   final String thumbnail;
-  final String likes;
-  final String comments;
+  String likes;
+  String comments;
   final String shares;
   bool isLiked;
 
