@@ -51,13 +51,13 @@
 - [x] 历史记录
 
 ### 0.3.1 (PATCH) - 重构优化
-- [ ] 修复本地视频无法播放 Bug
-- [ ] 修复 toggleLike 空安全 + 点赞/评论计数更新
-- [ ] 添加历史记录查看 UI
-- [ ] 移除死代码 (darkMode, 未使用的 LogService 方法)
-- [ ] 统一单例模式 + 减少文件路径重复
-- [ ] VideoPlayerWidget 添加错误状态展示
-- [ ] 完善测试用例
+- [x] 修复本地视频无法播放 Bug
+- [x] 修复 toggleLike 空安全 + 点赞/评论计数更新
+- [x] 添加历史记录查看 UI
+- [x] 移除死代码 (darkMode, 未使用的 LogService 方法)
+- [x] 统一单例模式 + 减少文件路径重复
+- [x] VideoPlayerWidget 添加错误状态展示
+- [x] 完善测试用例
 
 ## 长期规划 (1.0.x)
 
