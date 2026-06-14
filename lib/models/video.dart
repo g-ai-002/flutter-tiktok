@@ -23,20 +23,6 @@ class VideoModel {
     this.isLiked = false,
   });
 
-  factory VideoModel.fromMap(Map<String, String> map) {
-    return VideoModel(
-      id: map['id'] ?? '',
-      title: map['title'] ?? '',
-      author: map['author'] ?? '',
-      description: map['description'] ?? '',
-      url: map['url'] ?? '',
-      thumbnail: map['thumbnail'] ?? '',
-      likes: map['likes'] ?? '0',
-      comments: map['comments'] ?? '0',
-      shares: map['shares'] ?? '0',
-    );
-  }
-
   Map<String, dynamic> toJson() => {
         'id': id,
         'title': title,

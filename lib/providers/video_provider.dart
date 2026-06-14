@@ -27,7 +27,7 @@ class VideoProvider extends ChangeNotifier {
     try {
       final likedIds = _storage.likedVideos.toSet();
       _videos = AppConstants.sampleVideos.map((map) {
-        final video = VideoModel.fromMap(map);
+        final video = VideoModel.fromJson(map);
         video.isLiked = likedIds.contains(video.id);
         return video;
       }).toList();
@@ -56,19 +56,5 @@ class VideoProvider extends ChangeNotifier {
 
     notifyListeners();
     LogService.info('${video.isLiked ? "点赞" : "取消点赞"} 视频: $videoId');
-  }
-
-  void nextVideo() {
-    if (_currentIndex < _videos.length - 1) {
-      _currentIndex++;
-      notifyListeners();
-    }
-  }
-
-  void previousVideo() {
-    if (_currentIndex > 0) {
-      _currentIndex--;
-      notifyListeners();
-    }
   }
 }

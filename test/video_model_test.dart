@@ -3,8 +3,8 @@ import 'package:flutter_tiktok/models/video.dart';
 
 void main() {
   group('VideoModel', () {
-    test('fromMap creates correct model', () {
-      final map = {
+    test('fromJson creates correct model', () {
+      final json = <String, dynamic>{
         'id': '1',
         'title': '测试视频',
         'author': '@测试用户',
@@ -16,7 +16,7 @@ void main() {
         'shares': '20',
       };
 
-      final video = VideoModel.fromMap(map);
+      final video = VideoModel.fromJson(json);
 
       expect(video.id, '1');
       expect(video.title, '测试视频');

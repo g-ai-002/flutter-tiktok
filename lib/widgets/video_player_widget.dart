@@ -19,7 +19,6 @@ class VideoPlayerWidget extends StatefulWidget {
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   VideoPlayerController? _controller;
   bool _initialized = false;
-  String? _lastUrl;
 
   @override
   void initState() {
@@ -30,7 +29,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   @override
   void didUpdateWidget(covariant VideoPlayerWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.videoUrl != _lastUrl) {
+    if (widget.videoUrl != oldWidget.videoUrl) {
       _disposeController();
       _initController();
     }
@@ -40,7 +39,6 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 
   void _initController() {
-    _lastUrl = widget.videoUrl;
     final uri = Uri.tryParse(widget.videoUrl);
     if (uri == null) return;
 

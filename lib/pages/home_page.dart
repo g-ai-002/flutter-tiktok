@@ -14,7 +14,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late PageController _pageController;
-  int _activeIndex = 0;
 
   @override
   void initState() {
@@ -29,7 +28,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onPageChanged(int index) {
-    setState(() => _activeIndex = index);
     context.read<VideoProvider>().setCurrentIndex(index);
   }
 
@@ -60,7 +58,7 @@ class _HomePageState extends State<HomePage> {
             onPageChanged: _onPageChanged,
             itemBuilder: (context, index) {
               final video = provider.videos[index];
-              final isActive = index == _activeIndex;
+              final isActive = index == provider.currentIndex;
               return _VideoPage(
                 video: video,
                 isActive: isActive,

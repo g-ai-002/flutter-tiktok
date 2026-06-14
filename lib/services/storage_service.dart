@@ -2,42 +2,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/constants.dart';
 
 class StorageService {
-  static Future<StorageService>? _initFuture;
+  static StorageService? _instance;
 
-  SharedPreferences? _prefs;
-  bool _initialized = false;
+  final SharedPreferences _prefs;
 
-  StorageService._();
+  StorageService._(this._prefs);
 
-  static Future<StorageService> get instance {
-    final cached = _initFuture;
-    if (cached != null) return cached;
-    final f = _bootstrap();
-    _initFuture = f;
-    return f;
+  static Future<StorageService> get instance async {
+    if (_instance != null) return _instance!;
+    final prefs = await SharedPreferences.getInstance();
+    _instance = StorageService._(prefs);
+    return _instance!;
   }
 
-  static Future<StorageService> _bootstrap() async {
-    final s = StorageService._();
-    await s._init();
-    return s;
-  }
+  bool get darkMode => _prefs.getBool(AppConstants.prefKeyDarkMode) ?? false;
+  Future<void> setDarkMode(bool v) => _prefs.setBool(AppConstants.prefKeyDarkMode, v);
 
-  Future<void> _init() async {
-    if (_initialized) return;
-    _prefs = await SharedPreferences.getInstance();
-    _initialized = true;
-  }
-
-  SharedPreferences get _p {
-    final p = _prefs;
-    if (p == null) throw StateError('StorageService 尚未初始化');
-    return p;
-  }
-
-  bool get darkMode => _p.getBool(AppConstants.prefKeyDarkMode) ?? false;
-  Future<void> setDarkMode(bool v) => _p.setBool(AppConstants.prefKeyDarkMode, v);
-
-  List<String> get likedVideos => _p.getStringList(AppConstants.prefKeyLikedVideos) ?? const [];
-  Future<void> setLikedVideos(List<String> ids) => _p.setStringList(AppConstants.prefKeyLikedVideos, ids);
+  List<String> get likedVideos => _prefs.getStringList(AppConstants.prefKeyLikedVideos) ?? const [];
+  Future<void> setLikedVideos(List<String> ids) => _prefs.setStringList(AppConstants.prefKeyLikedVideos, ids);
 }

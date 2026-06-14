@@ -21,7 +21,14 @@
 - [x] 升级 Gradle 版本到 9.4.1 修复 Android 构建失败
 - [x] 修复 CI metadata job 缺少 checkout 步骤
 
-### 0.1.2 (PATCH) - 重构优化 (预留)
+### 0.1.2 (PATCH) - 重构优化
+- [x] 移除 VideoProvider 未使用的 nextVideo/previousVideo 方法
+- [x] 移除 HomePage 冗余的 _activeIndex 状态
+- [x] 简化 StorageService 单例模式
+- [x] 移除 VideoPlayerWidget 冗余的 _lastUrl
+- [x] 移除 VideoModel.fromMap，统一使用 fromJson
+
+### 0.1.3 (PATCH) - 重构优化 (预留)
 - [ ] 代码重构与优化
 
 ## 中期规划 (0.2.x)
