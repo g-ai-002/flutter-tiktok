@@ -1,0 +1,99 @@
+import 'package:flutter/material.dart';
+import '../models/video.dart';
+
+class VideoActions extends StatelessWidget {
+  final VideoModel video;
+  final VoidCallback onLike;
+  final VoidCallback onComment;
+  final VoidCallback onShare;
+
+  const VideoActions({
+    super.key,
+    required this.video,
+    required this.onLike,
+    required this.onComment,
+    required this.onShare,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _ActionButton(
+          icon: video.isLiked ? Icons.favorite : Icons.favorite_border,
+          iconColor: video.isLiked ? const Color(0xFFFE2C55) : Colors.white,
+          label: video.likes,
+          onTap: onLike,
+        ),
+        const SizedBox(height: 20),
+        _ActionButton(
+          icon: Icons.comment,
+          label: video.comments,
+          onTap: onComment,
+        ),
+        const SizedBox(height: 20),
+        _ActionButton(
+          icon: Icons.share,
+          label: video.shares,
+          onTap: onShare,
+        ),
+        const SizedBox(height: 20),
+        _CircleAvatar(video: video),
+      ],
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final Color? iconColor;
+  final String label;
+  final VoidCallback onTap;
+
+  const _ActionButton({
+    required this.icon,
+    this.iconColor,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: iconColor ?? Colors.white, size: 32),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CircleAvatar extends StatelessWidget {
+  final VideoModel video;
+  const _CircleAvatar({required this.video});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2),
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFE2C55), Color(0xFF25F4EE)],
+        ),
+      ),
+      child: const Icon(Icons.person, color: Colors.white, size: 24),
+    );
+  }
+}

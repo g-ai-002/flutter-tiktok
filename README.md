@@ -1,1 +1,30 @@
-# flutter-tiktok
+# 抖视频
+
+仿抖音竖屏滑动浏览播放视频 App，基于 Flutter 开发，支持 Android 和 Windows 平台。
+
+## 功能特性
+
+- 🎬 竖屏全屏视频播放
+- 👆 上下滑动切换视频
+- ❤️ 点赞、评论、分享交互
+- 🌓 明暗主题支持
+- 📱 Android 手机 + 折叠屏 + 平板自适应
+- 🖥️ Windows 10+ 窗口自适应
+- 🌐 简体中文界面
+
+## 技术栈
+
+- **框架**: Flutter 3.44+
+- **状态管理**: Provider
+- **视频播放**: video_player
+- **存储**: shared_preferences
+- **桌面窗口**: window_manager
+
+## 版本历史
+
+### 0.1.0 (首个版本)
+- 基础视频浏览功能
+- 竖屏滑动切换
+- 点赞交互
+- Android / Windows 双平台支持
+- CI/CD 自动构建发布
