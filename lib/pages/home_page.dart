@@ -191,7 +191,6 @@ class _VideoListSheet extends StatelessWidget {
           ),
           Flexible(
             child: ListView.builder(
-              shrinkWrap: true,
               itemCount: provider.videos.length,
               itemBuilder: (context, index) {
                 final video = provider.videos[index];

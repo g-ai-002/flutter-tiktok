@@ -30,6 +30,9 @@ class VideoProvider extends ChangeNotifier {
       final saved = await VideoSourceService.instance.getSavedVideos();
       if (saved.isNotEmpty) {
         _videos = saved;
+        for (final v in _videos) {
+          v.isLiked = likedIds.contains(v.id);
+        }
       } else {
         _videos = AppConstants.sampleVideos.map((map) {
           final video = VideoModel.fromJson(map);
