@@ -1,33 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/video.dart';
 import '../providers/video_provider.dart';
 import '../services/interaction_service.dart';
 import '../widgets/video_player_widget.dart';
 import '../widgets/video_actions.dart';
+import '../models/video.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final PageController pageController;
+
+  const HomePage({super.key, required this.pageController});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  late PageController _pageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
   void _onPageChanged(int index) {
     final provider = context.read<VideoProvider>();
     provider.setCurrentIndex(index);
@@ -41,6 +29,7 @@ class _HomePageState extends State<HomePage> {
       builder: (context, provider, _) {
         if (provider.isLoading) {
           return const Scaffold(
+            backgroundColor: Colors.black,
             body: Center(child: CircularProgressIndicator()),
           );
         }
@@ -70,7 +59,7 @@ class _HomePageState extends State<HomePage> {
           body: Stack(
             children: [
               PageView.builder(
-                controller: _pageController,
+                controller: widget.pageController,
                 scrollDirection: Axis.vertical,
                 itemCount: provider.videos.length,
                 onPageChanged: _onPageChanged,
@@ -266,7 +255,7 @@ class _HomePageState extends State<HomePage> {
                           onTap: () {
                             final idx = provider.videos.indexWhere((pv) => pv.id == v.id);
                             if (idx != -1) {
-                              _pageController.jumpToPage(idx);
+                              widget.pageController.jumpToPage(idx);
                             }
                             Navigator.pop(ctx);
                           },

@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'pages/home_page.dart';
+import 'pages/search_page.dart';
+import 'pages/profile_page.dart';
 import 'providers/video_provider.dart';
 import 'services/interaction_service.dart';
 import 'services/log_service.dart';
@@ -70,7 +72,69 @@ class TiktokApp extends StatelessWidget {
         ],
         supportedLocales: const [Locale('zh', 'CN')],
         locale: const Locale('zh', 'CN'),
-        home: const HomePage(),
+        home: const MainShell(),
+      ),
+    );
+  }
+}
+
+class MainShell extends StatefulWidget {
+  const MainShell({super.key});
+
+  @override
+  State<MainShell> createState() => _MainShellState();
+}
+
+class _MainShellState extends State<MainShell> {
+  int _currentTab = 0;
+  final PageController _homePageController = PageController();
+
+  void _switchToHome(int videoIndex) {
+    setState(() => _currentTab = 0);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_homePageController.hasClients) {
+        _homePageController.jumpToPage(videoIndex);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _homePageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: IndexedStack(
+        index: _currentTab,
+        children: [
+          HomePage(pageController: _homePageController),
+          SearchPage(onVideoSelected: _switchToHome),
+          ProfilePage(onVideoSelected: _switchToHome),
+        ],
+      ),
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: Colors.white12, width: 0.5)),
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _currentTab,
+          onTap: (i) => setState(() => _currentTab = i),
+          backgroundColor: Colors.black,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white38,
+          type: BottomNavigationBarType.fixed,
+          selectedFontSize: 11,
+          unselectedFontSize: 11,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home, size: 24), label: '首页'),
+            BottomNavigationBarItem(icon: Icon(Icons.search, size: 24), label: '搜索'),
+            BottomNavigationBarItem(icon: Icon(Icons.person, size: 24), label: '我的'),
+          ],
+        ),
       ),
     );
   }

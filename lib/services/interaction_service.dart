@@ -14,6 +14,7 @@ class InteractionService {
 
   // 评论
   List<CommentModel> getComments(String videoId) => _comments[videoId] ?? [];
+  int get totalComments => _comments.values.fold(0, (sum, list) => sum + list.length);
 
   void addComment(String videoId, String content) {
     final comment = CommentModel(
@@ -29,6 +30,7 @@ class InteractionService {
   }
 
   // 收藏
+  List<String> get favorites => List.unmodifiable(_favorites);
   bool isFavorite(String videoId) => _favorites.contains(videoId);
 
   void toggleFavorite(String videoId) {
