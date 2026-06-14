@@ -34,5 +34,13 @@ void main() {
     test('currentVideo is null when videos empty', () {
       expect(provider.currentVideo, isNull);
     });
+
+    test('getVideosByIds returns empty for unknown ids', () {
+      expect(provider.getVideosByIds(['unknown']), isEmpty);
+    });
+
+    test('incrementComments does not throw for invalid id', () {
+      expect(() => provider.incrementComments('nonexistent'), returnsNormally);
+    });
   });
 }

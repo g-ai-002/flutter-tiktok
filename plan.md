@@ -66,8 +66,12 @@
 - [x] 个人主页 (收藏列表、历史记录、使用统计)
 - [x] 底部导航栏 (首页/搜索/个人)
 
-### 0.4.1 (PATCH) - 重构优化 (预留)
-- [ ] 代码重构与优化
+### 0.4.1 (PATCH) - 重构优化
+- [x] 修复 _showCommentSheet 直接修改 model 字段，改为通过 VideoProvider.incrementComments
+- [x] 提取重复的 ID-到-视频解析逻辑为 VideoProvider.getVideosByIds
+- [x] 修复 search_page requestFocus 时序问题
+- [x] 代码审查与清理
+- [x] 更新测试用例
 
 ## 长期规划 (1.0.x)
 

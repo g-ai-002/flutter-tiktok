@@ -167,8 +167,7 @@ class _HomePageState extends State<HomePage> {
                             final text = controller.text.trim();
                             if (text.isNotEmpty) {
                               interaction.addComment(video.id, text);
-                              final currentComments = int.tryParse(video.comments) ?? 0;
-                              video.comments = '${currentComments + 1}';
+                              context.read<VideoProvider>().incrementComments(video.id);
                               controller.clear();
                               setSheetState(() {});
                             }
@@ -198,17 +197,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showHistorySheet(BuildContext context, VideoProvider provider) {
-    final historyIds = InteractionService.instance.history;
-    final historyVideos = historyIds
-        .map((id) {
-          try {
-            return provider.videos.firstWhere((v) => v.id == id);
-          } catch (_) {
-            return null;
-          }
-        })
-        .whereType<VideoModel>()
-        .toList();
+    final historyVideos = provider.getVideosByIds(InteractionService.instance.history);
 
     showModalBottomSheet(
       context: context,

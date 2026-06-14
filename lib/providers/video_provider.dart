@@ -21,6 +21,19 @@ class VideoProvider extends ChangeNotifier {
   VideoModel? get currentVideo =>
       _videos.isNotEmpty && _currentIndex < _videos.length ? _videos[_currentIndex] : null;
 
+  List<VideoModel> getVideosByIds(List<String> ids) {
+    return ids
+        .map((id) {
+          try {
+            return _videos.firstWhere((v) => v.id == id);
+          } catch (_) {
+            return null;
+          }
+        })
+        .whereType<VideoModel>()
+        .toList();
+  }
+
   Future<void> _loadVideos() async {
     _isLoading = true;
     notifyListeners();
@@ -90,6 +103,15 @@ class VideoProvider extends ChangeNotifier {
     await VideoSourceService.instance.saveVideos(_videos);
     notifyListeners();
     LogService.info('已移除视频: $videoId');
+  }
+
+  void incrementComments(String videoId) {
+    final index = _videos.indexWhere((v) => v.id == videoId);
+    if (index == -1) return;
+    final video = _videos[index];
+    final current = int.tryParse(video.comments) ?? 0;
+    video.comments = '${current + 1}';
+    notifyListeners();
   }
 
   Future<void> resetToSampleVideos() async {

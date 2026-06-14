@@ -14,28 +14,9 @@ class ProfilePage extends StatelessWidget {
     final interaction = InteractionService.instance;
     final provider = context.watch<VideoProvider>();
 
-    final favorites = interaction.favorites
-        .map((id) {
-          try {
-            return provider.videos.firstWhere((v) => v.id == id);
-          } catch (_) {
-            return null;
-          }
-        })
-        .whereType<VideoModel>()
-        .toList();
+    final favorites = provider.getVideosByIds(interaction.favorites);
 
-    final historyIds = interaction.history;
-    final historyVideos = historyIds
-        .map((id) {
-          try {
-            return provider.videos.firstWhere((v) => v.id == id);
-          } catch (_) {
-            return null;
-          }
-        })
-        .whereType<VideoModel>()
-        .toList();
+    final historyVideos = provider.getVideosByIds(interaction.history);
 
     final totalComments = interaction.totalComments;
     final totalLikes = provider.videos.where((v) => v.isLiked).length;
