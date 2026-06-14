@@ -42,34 +42,183 @@ class _HomePageState extends State<HomePage> {
         }
 
         if (provider.videos.isEmpty) {
-          return const Scaffold(
+          return Scaffold(
+            backgroundColor: Colors.black,
             body: Center(
-              child: Text('暂无视频', style: TextStyle(color: Colors.white54, fontSize: 16)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('暂无视频', style: TextStyle(color: Colors.white54, fontSize: 16)),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () => provider.importLocalVideos(),
+                    icon: const Icon(Icons.add),
+                    label: const Text('导入视频'),
+                  ),
+                ],
+              ),
             ),
           );
         }
 
         return Scaffold(
           backgroundColor: Colors.black,
-          body: PageView.builder(
-            controller: _pageController,
-            scrollDirection: Axis.vertical,
-            itemCount: provider.videos.length,
-            onPageChanged: _onPageChanged,
-            itemBuilder: (context, index) {
-              final video = provider.videos[index];
-              final isActive = index == provider.currentIndex;
-              return _VideoPage(
-                video: video,
-                isActive: isActive,
-                onLike: () => provider.toggleLike(video.id),
-                onComment: () {},
-                onShare: () {},
-              );
-            },
+          body: Stack(
+            children: [
+              PageView.builder(
+                controller: _pageController,
+                scrollDirection: Axis.vertical,
+                itemCount: provider.videos.length,
+                onPageChanged: _onPageChanged,
+                itemBuilder: (context, index) {
+                  final video = provider.videos[index];
+                  final isActive = index == provider.currentIndex;
+                  return _VideoPage(
+                    video: video,
+                    isActive: isActive,
+                    onLike: () => provider.toggleLike(video.id),
+                    onComment: () {},
+                    onShare: () {},
+                  );
+                },
+              ),
+              // 顶部工具栏
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 8,
+                left: 0,
+                right: 0,
+                child: _TopToolbar(
+                  onImport: () => provider.importLocalVideos(),
+                  onManage: () => _showVideoList(context, provider),
+                ),
+              ),
+            ],
           ),
         );
       },
+    );
+  }
+
+  void _showVideoList(BuildContext context, VideoProvider provider) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1A1A1A),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => _VideoListSheet(provider: provider),
+    );
+  }
+}
+
+class _TopToolbar extends StatelessWidget {
+  final VoidCallback onImport;
+  final VoidCallback onManage;
+
+  const _TopToolbar({required this.onImport, required this.onManage});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          const Text(
+            '推荐',
+            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+          ),
+          const Spacer(),
+          _ToolIcon(icon: Icons.file_upload_outlined, onTap: onImport),
+          const SizedBox(width: 16),
+          _ToolIcon(icon: Icons.list_alt, onTap: onManage),
+        ],
+      ),
+    );
+  }
+}
+
+class _ToolIcon extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _ToolIcon({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: Colors.white, size: 20),
+      ),
+    );
+  }
+}
+
+class _VideoListSheet extends StatelessWidget {
+  final VideoProvider provider;
+  const _VideoListSheet({required this.provider});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Row(
+              children: [
+                const Text(
+                  '视频列表',
+                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () {
+                    provider.resetToSampleVideos();
+                    Navigator.pop(context);
+                  },
+                  child: const Text('恢复默认', style: TextStyle(color: Colors.white54)),
+                ),
+              ],
+            ),
+          ),
+          Flexible(
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: provider.videos.length,
+              itemBuilder: (context, index) {
+                final video = provider.videos[index];
+                return ListTile(
+                  leading: const Icon(Icons.videocam, color: Colors.white54),
+                  title: Text(
+                    video.title,
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(
+                    video.author,
+                    style: const TextStyle(color: Colors.white38, fontSize: 12),
+                  ),
+                  trailing: video.id.startsWith('local_')
+                      ? IconButton(
+                          icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                          onPressed: () => provider.removeVideo(video.id),
+                        )
+                      : null,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -95,7 +244,6 @@ class _VideoPage extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         VideoPlayerWidget(videoUrl: video.url, isActive: isActive),
-        // 底部信息区
         Positioned(
           left: 16,
           right: 80,
@@ -136,7 +284,6 @@ class _VideoPage extends StatelessWidget {
             ],
           ),
         ),
-        // 右侧操作按钮
         Positioned(
           right: 12,
           bottom: 80,

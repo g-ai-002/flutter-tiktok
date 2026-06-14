@@ -2,7 +2,7 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = '抖视频';
-  static const String version = '0.1.2';
+  static const String version = '0.2.0';
 
   static const String prefKeyDarkMode = 'dark_mode';
   static const String prefKeyLikedVideos = 'liked_videos_v1';
