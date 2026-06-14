@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../models/video.dart';
+import '../services/interaction_service.dart';
 
 class VideoActions extends StatelessWidget {
   final VideoModel video;
   final VoidCallback onLike;
   final VoidCallback onComment;
   final VoidCallback onShare;
+  final VoidCallback onFavorite;
 
   const VideoActions({
     super.key,
@@ -13,10 +15,12 @@ class VideoActions extends StatelessWidget {
     required this.onLike,
     required this.onComment,
     required this.onShare,
+    required this.onFavorite,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isFav = InteractionService.instance.isFavorite(video.id);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -31,6 +35,13 @@ class VideoActions extends StatelessWidget {
           icon: Icons.comment,
           label: video.comments,
           onTap: onComment,
+        ),
+        const SizedBox(height: 20),
+        _ActionButton(
+          icon: isFav ? Icons.star : Icons.star_border,
+          iconColor: isFav ? const Color(0xFFFFD700) : Colors.white,
+          label: '收藏',
+          onTap: onFavorite,
         ),
         const SizedBox(height: 20),
         _ActionButton(

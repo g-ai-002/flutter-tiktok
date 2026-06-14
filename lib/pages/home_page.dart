@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/video.dart';
 import '../providers/video_provider.dart';
+import '../services/interaction_service.dart';
 import '../widgets/video_player_widget.dart';
 import '../widgets/video_actions.dart';
 
@@ -28,7 +29,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onPageChanged(int index) {
-    context.read<VideoProvider>().setCurrentIndex(index);
+    final provider = context.read<VideoProvider>();
+    provider.setCurrentIndex(index);
+    final video = provider.videos[index];
+    InteractionService.instance.addToHistory(video.id);
   }
 
   @override
@@ -77,12 +81,12 @@ class _HomePageState extends State<HomePage> {
                     video: video,
                     isActive: isActive,
                     onLike: () => provider.toggleLike(video.id),
-                    onComment: () {},
+                    onComment: () => _showCommentSheet(context, video),
                     onShare: () {},
+                    onFavorite: () => InteractionService.instance.toggleFavorite(video.id),
                   );
                 },
               ),
-              // 顶部工具栏
               Positioned(
                 top: MediaQuery.of(context).padding.top + 8,
                 left: 0,
@@ -96,6 +100,97 @@ class _HomePageState extends State<HomePage> {
           ),
         );
       },
+    );
+  }
+
+  void _showCommentSheet(BuildContext context, VideoModel video) {
+    final interaction = InteractionService.instance;
+    final comments = interaction.getComments(video.id);
+    final controller = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF1A1A1A),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          return SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Text(
+                      '评论',
+                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  Flexible(
+                    child: comments.isEmpty
+                        ? const Padding(
+                            padding: EdgeInsets.all(32),
+                            child: Center(
+                              child: Text('暂无评论', style: TextStyle(color: Colors.white38)),
+                            ),
+                          )
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: comments.length,
+                            itemBuilder: (_, i) {
+                              final c = comments[i];
+                              return ListTile(
+                                leading: const CircleAvatar(
+                                  radius: 16,
+                                  child: Icon(Icons.person, size: 18),
+                                ),
+                                title: Text(c.author, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                                subtitle: Text(c.content, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                              );
+                            },
+                          ),
+                  ),
+                  const Divider(color: Colors.white12),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: controller,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: const InputDecoration(
+                              hintText: '说点什么...',
+                              hintStyle: TextStyle(color: Colors.white38),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.send, color: Color(0xFFFE2C55)),
+                          onPressed: () {
+                            final text = controller.text.trim();
+                            if (text.isNotEmpty) {
+                              interaction.addComment(video.id, text);
+                              controller.clear();
+                              setSheetState(() {});
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -228,6 +323,7 @@ class _VideoPage extends StatelessWidget {
   final VoidCallback onLike;
   final VoidCallback onComment;
   final VoidCallback onShare;
+  final VoidCallback onFavorite;
 
   const _VideoPage({
     required this.video,
@@ -235,6 +331,7 @@ class _VideoPage extends StatelessWidget {
     required this.onLike,
     required this.onComment,
     required this.onShare,
+    required this.onFavorite,
   });
 
   @override
@@ -291,6 +388,7 @@ class _VideoPage extends StatelessWidget {
             onLike: onLike,
             onComment: onComment,
             onShare: onShare,
+            onFavorite: onFavorite,
           ),
         ),
       ],
