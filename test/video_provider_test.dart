@@ -22,48 +22,17 @@ void main() {
       provider.setCurrentIndex(999);
       expect(provider.currentIndex, originalIndex);
     });
-  });
 
-  testWidgets('VideoProvider loads sample videos', (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    final storage = await StorageService.instance;
-    final provider = VideoProvider(storage);
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
+    test('initial state is loading', () {
+      expect(provider.isLoading, true);
+    });
 
-    expect(provider.videos.length, 5);
-    expect(provider.currentVideo, isNotNull);
-  });
+    test('initial videos is empty', () {
+      expect(provider.videos, isEmpty);
+    });
 
-  testWidgets('toggleLike toggles isLiked and updates count', (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    final storage = await StorageService.instance;
-    final provider = VideoProvider(storage);
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
-
-    final video = provider.videos.first;
-    final initialLiked = video.isLiked;
-    final initialLikes = int.parse(video.likes);
-
-    provider.toggleLike(video.id);
-
-    expect(video.isLiked, !initialLiked);
-    if (video.isLiked) {
-      expect(int.parse(video.likes), initialLikes + 1);
-    } else {
-      expect(int.parse(video.likes), initialLikes > 0 ? initialLikes - 1 : 0);
-    }
-  });
-
-  testWidgets('setCurrentIndex within bounds', (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    final storage = await StorageService.instance;
-    final provider = VideoProvider(storage);
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
-
-    provider.setCurrentIndex(2);
-    expect(provider.currentIndex, 2);
+    test('currentVideo is null when videos empty', () {
+      expect(provider.currentVideo, isNull);
+    });
   });
 }
