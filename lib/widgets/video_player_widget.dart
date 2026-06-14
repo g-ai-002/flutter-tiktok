@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import '../services/log_service.dart';
@@ -19,6 +20,7 @@ class VideoPlayerWidget extends StatefulWidget {
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   VideoPlayerController? _controller;
   bool _initialized = false;
+  bool _hasError = false;
 
   @override
   void initState() {
@@ -39,18 +41,38 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 
   void _initController() {
+    _hasError = false;
     final uri = Uri.tryParse(widget.videoUrl);
-    if (uri == null) return;
+    if (uri == null) {
+      _hasError = true;
+      return;
+    }
 
-    _controller = VideoPlayerController.networkUrl(uri)
-      ..initialize().then((_) {
-        if (mounted) {
-          setState(() => _initialized = true);
-          _updatePlayState();
-        }
-      }).catchError((e, st) {
-        LogService.error('视频初始化失败: ${widget.videoUrl}', e, st);
-      });
+    final isNetwork = uri.hasScheme && (uri.scheme == 'http' || uri.scheme == 'https');
+    if (isNetwork) {
+      _controller = VideoPlayerController.networkUrl(uri);
+    } else {
+      final file = File(widget.videoUrl);
+      if (!file.existsSync()) {
+        _hasError = true;
+        LogService.error('本地视频文件不存在: ${widget.videoUrl}');
+        return;
+      }
+      _controller = VideoPlayerController.file(file);
+    }
+
+    _controller!
+        .initialize()
+        .then((_) {
+          if (mounted) {
+            setState(() => _initialized = true);
+            _updatePlayState();
+          }
+        })
+        .catchError((e, st) {
+          LogService.error('视频初始化失败: ${widget.videoUrl}', e, st);
+          if (mounted) setState(() => _hasError = true);
+        });
 
     _controller!.setLooping(true);
   }
@@ -78,6 +100,19 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (_hasError) {
+      return const Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline, color: Colors.white54, size: 48),
+            SizedBox(height: 12),
+            Text('视频加载失败', style: TextStyle(color: Colors.white54, fontSize: 14)),
+          ],
+        ),
+      );
+    }
+
     if (!_initialized || _controller == null) {
       return const Center(
         child: CircularProgressIndicator(color: Colors.white),

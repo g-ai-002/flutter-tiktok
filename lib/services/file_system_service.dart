@@ -35,4 +35,9 @@ class FileSystemService {
     _logRoot = logDir;
     return logDir;
   }
+
+  Future<File> getUserFile(String filename) async {
+    final dir = await getUserRoot();
+    return File('${dir.path}${Platform.pathSeparator}$filename');
+  }
 }

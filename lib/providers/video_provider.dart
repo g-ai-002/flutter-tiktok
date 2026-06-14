@@ -57,8 +57,13 @@ class VideoProvider extends ChangeNotifier {
   }
 
   void toggleLike(String videoId) {
-    final video = _videos.firstWhere((v) => v.id == videoId);
+    final index = _videos.indexWhere((v) => v.id == videoId);
+    if (index == -1) return;
+    final video = _videos[index];
     video.isLiked = !video.isLiked;
+
+    final currentLikes = int.tryParse(video.likes) ?? 0;
+    video.likes = video.isLiked ? '${currentLikes + 1}' : '${currentLikes > 0 ? currentLikes - 1 : 0}';
 
     final likedIds = _videos.where((v) => v.isLiked).map((v) => v.id).toList();
     _storage.setLikedVideos(likedIds);

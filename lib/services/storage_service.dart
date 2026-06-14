@@ -15,9 +15,6 @@ class StorageService {
     return _instance!;
   }
 
-  bool get darkMode => _prefs.getBool(AppConstants.prefKeyDarkMode) ?? false;
-  Future<void> setDarkMode(bool v) => _prefs.setBool(AppConstants.prefKeyDarkMode, v);
-
   List<String> get likedVideos => _prefs.getStringList(AppConstants.prefKeyLikedVideos) ?? const [];
   Future<void> setLikedVideos(List<String> ids) => _prefs.setStringList(AppConstants.prefKeyLikedVideos, ids);
 }

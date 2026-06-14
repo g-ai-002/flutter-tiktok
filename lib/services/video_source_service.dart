@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as p;
 import '../models/video.dart';
@@ -44,10 +43,9 @@ class VideoSourceService {
 
   Future<List<VideoModel>> getSavedVideos() async {
     try {
-      final dir = await FileSystemService.instance.getUserRoot();
-      final metaFile = File('${dir.path}${Platform.pathSeparator}videos.json');
-      if (!await metaFile.exists()) return [];
-      final content = await metaFile.readAsString();
+      final file = await FileSystemService.instance.getUserFile('videos.json');
+      if (!await file.exists()) return [];
+      final content = await file.readAsString();
       final list = (jsonDecode(content) as List).cast<Map<String, dynamic>>();
       return list.map((j) => VideoModel.fromJson(j)).toList();
     } catch (e, st) {
@@ -58,10 +56,9 @@ class VideoSourceService {
 
   Future<void> saveVideos(List<VideoModel> videos) async {
     try {
-      final dir = await FileSystemService.instance.getUserRoot();
-      final metaFile = File('${dir.path}${Platform.pathSeparator}videos.json');
+      final file = await FileSystemService.instance.getUserFile('videos.json');
       final list = videos.map((v) => v.toJson()).toList();
-      await metaFile.writeAsString(jsonEncode(list));
+      await file.writeAsString(jsonEncode(list));
     } catch (e, st) {
       LogService.error('保存视频列表失败', e, st);
     }

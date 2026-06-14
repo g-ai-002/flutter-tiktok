@@ -94,6 +94,7 @@ class _HomePageState extends State<HomePage> {
                 child: _TopToolbar(
                   onImport: () => provider.importLocalVideos(),
                   onManage: () => _showVideoList(context, provider),
+                  onHistory: () => _showHistorySheet(context, provider),
                 ),
               ),
             ],
@@ -177,6 +178,8 @@ class _HomePageState extends State<HomePage> {
                             final text = controller.text.trim();
                             if (text.isNotEmpty) {
                               interaction.addComment(video.id, text);
+                              final currentComments = int.tryParse(video.comments) ?? 0;
+                              video.comments = '${currentComments + 1}';
                               controller.clear();
                               setSheetState(() {});
                             }
@@ -204,13 +207,86 @@ class _HomePageState extends State<HomePage> {
       builder: (ctx) => _VideoListSheet(provider: provider),
     );
   }
+
+  void _showHistorySheet(BuildContext context, VideoProvider provider) {
+    final historyIds = InteractionService.instance.history;
+    final historyVideos = historyIds
+        .map((id) {
+          try {
+            return provider.videos.firstWhere((v) => v.id == id);
+          } catch (_) {
+            return null;
+          }
+        })
+        .whereType<VideoModel>()
+        .toList();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1A1A1A),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Text(
+                '观看历史',
+                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+            ),
+            Flexible(
+              child: historyVideos.isEmpty
+                  ? const Padding(
+                      padding: EdgeInsets.all(32),
+                      child: Center(
+                        child: Text('暂无观看记录', style: TextStyle(color: Colors.white38)),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: historyVideos.length,
+                      itemBuilder: (_, i) {
+                        final v = historyVideos[i];
+                        return ListTile(
+                          leading: const Icon(Icons.play_circle_outline, color: Colors.white54),
+                          title: Text(
+                            v.title,
+                            style: const TextStyle(color: Colors.white, fontSize: 14),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Text(
+                            v.author,
+                            style: const TextStyle(color: Colors.white38, fontSize: 12),
+                          ),
+                          onTap: () {
+                            final idx = provider.videos.indexWhere((pv) => pv.id == v.id);
+                            if (idx != -1) {
+                              _pageController.jumpToPage(idx);
+                            }
+                            Navigator.pop(ctx);
+                          },
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _TopToolbar extends StatelessWidget {
   final VoidCallback onImport;
   final VoidCallback onManage;
+  final VoidCallback onHistory;
 
-  const _TopToolbar({required this.onImport, required this.onManage});
+  const _TopToolbar({required this.onImport, required this.onManage, required this.onHistory});
 
   @override
   Widget build(BuildContext context) {
@@ -223,8 +299,10 @@ class _TopToolbar extends StatelessWidget {
             style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
           ),
           const Spacer(),
+          _ToolIcon(icon: Icons.history, onTap: onHistory),
+          const SizedBox(width: 12),
           _ToolIcon(icon: Icons.file_upload_outlined, onTap: onImport),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           _ToolIcon(icon: Icons.list_alt, onTap: onManage),
         ],
       ),

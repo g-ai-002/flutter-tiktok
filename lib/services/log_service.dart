@@ -30,8 +30,6 @@ class LogService {
 
   static void info(String message) => _instance?._write('INFO', message);
 
-  static void warning(String message) => _instance?._write('WARN', message);
-
   static void error(String message, [Object? error, StackTrace? stack]) {
     final msg = error != null ? '$message | $error' : message;
     _instance?._write('ERROR', msg);
@@ -50,14 +48,4 @@ class LogService {
     } catch (_) {}
   }
 
-  static Future<String> getLogFilePath() async {
-    return _instance?._logFile?.path ?? '';
-  }
-
-  static List<String> getRecentLogs([int n = 200]) {
-    if (_instance == null) return const [];
-    final buf = _instance!._buffer;
-    if (buf.length <= n) return List.from(buf);
-    return buf.sublist(buf.length - n);
-  }
 }
