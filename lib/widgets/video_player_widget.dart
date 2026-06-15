@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import '../services/log_service.dart';
+import '../utils/format.dart';
+import 'speed_sheet.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
@@ -35,8 +37,6 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   StreamSubscription? _durationSub;
   StreamSubscription? _errorSub;
 
-  static const List<double> _speeds = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
-
   @override
   void initState() {
     super.initState();
@@ -59,6 +59,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   void _initPlayer() {
     _hasError = false;
     _initialized = false;
+    _heartId = 0;
+    _hearts.clear();
 
     _cancelSubscriptions();
 
@@ -130,42 +132,6 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   void _setSpeed(double speed) {
     setState(() => _speed = speed);
     _player.setRate(speed);
-  }
-
-  void _showSpeedSheet() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF1A1A1A),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text('播放速度', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
-            ),
-            ..._speeds.map((s) => ListTile(
-              title: Text(
-                s == 1.0 ? '${s.toStringAsFixed(0)}x (正常)' : '${s}x',
-                style: TextStyle(
-                  color: _speed == s ? const Color(0xFFFE2C55) : Colors.white,
-                  fontWeight: _speed == s ? FontWeight.w600 : FontWeight.normal,
-                ),
-              ),
-              trailing: _speed == s ? const Icon(Icons.check, color: Color(0xFFFE2C55)) : null,
-              onTap: () {
-                _setSpeed(s);
-                Navigator.pop(ctx);
-              },
-            )),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
   }
 
   void _togglePlayPause() {
@@ -255,7 +221,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
             right: 12,
             top: MediaQuery.of(context).size.height * 0.40,
             child: GestureDetector(
-              onTap: _showSpeedSheet,
+              onTap: () => SpeedSheet.show(context, _speed, _setSpeed),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
@@ -317,11 +283,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          _formatDuration(position),
+                          formatDuration(position),
                           style: const TextStyle(color: Colors.white70, fontSize: 11),
                         ),
                         Text(
-                          _formatDuration(duration),
+                          formatDuration(duration),
                           style: const TextStyle(color: Colors.white70, fontSize: 11),
                         ),
                       ],
@@ -336,15 +302,6 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     );
   }
 
-  String _formatDuration(Duration d) {
-    final hours = d.inHours;
-    final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    if (hours > 0) {
-      return '${hours.toString().padLeft(2, '0')}:$minutes:$seconds';
-    }
-    return '$minutes:$seconds';
-  }
 }
 
 class _HeartAnimation extends StatefulWidget {
