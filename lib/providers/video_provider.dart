@@ -4,11 +4,15 @@ import '../services/storage_service.dart';
 import '../services/log_service.dart';
 import '../services/video_source_service.dart';
 
+enum VideoSortMode { importTime, name, duration, fileSize }
+
 class VideoProvider extends ChangeNotifier {
   final StorageService _storage;
   List<VideoModel> _videos = [];
   int _currentIndex = 0;
   bool _isLoading = false;
+  VideoSortMode _sortMode = VideoSortMode.importTime;
+  bool _sortAscending = false;
 
   VideoProvider(this._storage) {
     _loadVideos();
@@ -17,12 +21,42 @@ class VideoProvider extends ChangeNotifier {
   List<VideoModel> get videos => _videos;
   int get currentIndex => _currentIndex;
   bool get isLoading => _isLoading;
+  VideoSortMode get sortMode => _sortMode;
+  bool get sortAscending => _sortAscending;
   VideoModel? get currentVideo =>
       _videos.isNotEmpty && _currentIndex < _videos.length ? _videos[_currentIndex] : null;
 
   List<VideoModel> getVideosByIds(List<String> ids) {
     final idSet = ids.toSet();
     return _videos.where((v) => idSet.contains(v.id)).toList();
+  }
+
+  void setSortMode(VideoSortMode mode) {
+    if (_sortMode == mode) {
+      _sortAscending = !_sortAscending;
+    } else {
+      _sortMode = mode;
+      _sortAscending = false;
+    }
+    _sortVideos();
+    notifyListeners();
+  }
+
+  void _sortVideos() {
+    int cmp(VideoModel a, VideoModel b) {
+      switch (_sortMode) {
+        case VideoSortMode.name:
+          return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+        case VideoSortMode.duration:
+          return a.durationMs.compareTo(b.durationMs);
+        case VideoSortMode.fileSize:
+          return a.fileSize.compareTo(b.fileSize);
+        case VideoSortMode.importTime:
+          return a.importTime.compareTo(b.importTime);
+      }
+    }
+
+    _videos.sort((a, b) => _sortAscending ? cmp(a, b) : cmp(b, a));
   }
 
   Future<void> _loadVideos() async {
@@ -36,6 +70,7 @@ class VideoProvider extends ChangeNotifier {
       for (final v in _videos) {
         v.isLiked = likedIds.contains(v.id);
       }
+      _sortVideos();
       LogService.info('加载了 ${_videos.length} 个视频');
     } catch (e, st) {
       LogService.error('加载视频失败', e, st);
@@ -73,6 +108,7 @@ class VideoProvider extends ChangeNotifier {
     if (imported.isEmpty) return;
 
     _videos.addAll(imported);
+    _sortVideos();
     await VideoSourceService.instance.saveVideos(_videos);
     notifyListeners();
     LogService.info('视频列表已更新，共 ${_videos.length} 个视频');
