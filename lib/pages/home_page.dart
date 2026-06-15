@@ -3,8 +3,9 @@ import 'package:provider/provider.dart';
 import '../providers/video_provider.dart';
 import '../services/interaction_service.dart';
 import '../services/video_preload_service.dart';
-import '../widgets/video_player_widget.dart';
-import '../widgets/video_actions.dart';
+import '../widgets/video_page.dart';
+import '../widgets/top_toolbar.dart';
+import '../widgets/video_list_sheet.dart';
 import '../models/video.dart';
 
 class HomePage extends StatefulWidget {
@@ -71,7 +72,7 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) {
                   final video = provider.videos[index];
                   final isActive = index == provider.currentIndex;
-                  return _VideoPage(
+                  return VideoPage(
                     video: video,
                     isActive: isActive,
                     onLike: () => provider.toggleLike(video.id),
@@ -85,7 +86,7 @@ class _HomePageState extends State<HomePage> {
                 top: MediaQuery.of(context).padding.top + 8,
                 left: 0,
                 right: 0,
-                child: _TopToolbar(
+                child: TopToolbar(
                   onImport: () => provider.importLocalVideos(),
                   onManage: () => _showVideoList(context, provider),
                   onHistory: () => _showHistorySheet(context, provider),
@@ -197,7 +198,7 @@ class _HomePageState extends State<HomePage> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (ctx) => _VideoListSheet(provider: provider),
+      builder: (ctx) => VideoListSheet(provider: provider),
     );
   }
 
@@ -260,203 +261,6 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _TopToolbar extends StatelessWidget {
-  final VoidCallback onImport;
-  final VoidCallback onManage;
-  final VoidCallback onHistory;
-
-  const _TopToolbar({required this.onImport, required this.onManage, required this.onHistory});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          const Text(
-            '推荐',
-            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-          const Spacer(),
-          _ToolIcon(icon: Icons.history, onTap: onHistory),
-          const SizedBox(width: 12),
-          _ToolIcon(icon: Icons.file_upload_outlined, onTap: onImport),
-          const SizedBox(width: 12),
-          _ToolIcon(icon: Icons.list_alt, onTap: onManage),
-        ],
-      ),
-    );
-  }
-}
-
-class _ToolIcon extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _ToolIcon({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(icon, color: Colors.white, size: 20),
-      ),
-    );
-  }
-}
-
-class _VideoListSheet extends StatelessWidget {
-  final VideoProvider provider;
-  const _VideoListSheet({required this.provider});
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Row(
-              children: [
-                const Text(
-                  '视频列表',
-                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-                const Spacer(),
-                TextButton(
-                  onPressed: () {
-                    provider.resetToSampleVideos();
-                    Navigator.pop(context);
-                  },
-                  child: const Text('恢复默认', style: TextStyle(color: Colors.white54)),
-                ),
-              ],
-            ),
-          ),
-          Flexible(
-            child: ListView.builder(
-              itemCount: provider.videos.length,
-              itemBuilder: (context, index) {
-                final video = provider.videos[index];
-                return ListTile(
-                  leading: const Icon(Icons.videocam, color: Colors.white54),
-                  title: Text(
-                    video.title,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  subtitle: Text(
-                    video.author,
-                    style: const TextStyle(color: Colors.white38, fontSize: 12),
-                  ),
-                  trailing: video.id.startsWith('local_')
-                      ? IconButton(
-                          icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
-                          onPressed: () => provider.removeVideo(video.id),
-                        )
-                      : null,
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _VideoPage extends StatelessWidget {
-  final VideoModel video;
-  final bool isActive;
-  final VoidCallback onLike;
-  final VoidCallback onComment;
-  final VoidCallback onShare;
-  final VoidCallback onFavorite;
-
-  const _VideoPage({
-    required this.video,
-    required this.isActive,
-    required this.onLike,
-    required this.onComment,
-    required this.onShare,
-    required this.onFavorite,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        VideoPlayerWidget(
-          videoUrl: video.url,
-          isActive: isActive,
-          onDoubleTap: onLike,
-        ),
-        Positioned(
-          left: 16,
-          right: 80,
-          bottom: 20,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                video.author,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                video.description,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Icon(Icons.music_note, color: Colors.white, size: 14),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      video.title,
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        Positioned(
-          right: 12,
-          bottom: 80,
-          child: VideoActions(
-            video: video,
-            onLike: onLike,
-            onComment: onComment,
-            onShare: onShare,
-            onFavorite: onFavorite,
-          ),
-        ),
-      ],
     );
   }
 }
