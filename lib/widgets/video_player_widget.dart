@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import '../services/log_service.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
@@ -20,7 +21,8 @@ class VideoPlayerWidget extends StatefulWidget {
 }
 
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
-  VideoPlayerController? _controller;
+  late final Player _player;
+  late final VideoController _videoController;
   bool _initialized = false;
   bool _hasError = false;
   bool _isMuted = false;
@@ -29,23 +31,25 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   @override
   void initState() {
     super.initState();
-    _initController();
+    _player = Player();
+    _videoController = VideoController(_player);
+    _initPlayer();
   }
 
   @override
   void didUpdateWidget(covariant VideoPlayerWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.videoUrl != oldWidget.videoUrl) {
-      _disposeController();
-      _initController();
+      _initPlayer();
     }
     if (widget.isActive != oldWidget.isActive) {
       _updatePlayState();
     }
   }
 
-  void _initController() {
+  void _initPlayer() {
     _hasError = false;
+    _initialized = false;
     final uri = Uri.tryParse(widget.videoUrl);
     if (uri == null) {
       _hasError = true;
@@ -54,7 +58,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
     final isNetwork = uri.hasScheme && (uri.scheme == 'http' || uri.scheme == 'https');
     if (isNetwork) {
-      _controller = VideoPlayerController.networkUrl(uri);
+      _player.open(Media(widget.videoUrl));
     } else {
       final file = File(widget.videoUrl);
       if (!file.existsSync()) {
@@ -62,61 +66,54 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         LogService.error('本地视频文件不存在: ${widget.videoUrl}');
         return;
       }
-      _controller = VideoPlayerController.file(file);
+      _player.open(Media(widget.videoUrl));
     }
 
-    _controller!
-        .initialize()
-        .then((_) {
-          if (mounted) {
-            setState(() => _initialized = true);
-            _updatePlayState();
-          }
-        })
-        .catchError((e, st) {
-          LogService.error('视频初始化失败: ${widget.videoUrl}', e, st);
-          if (mounted) setState(() => _hasError = true);
-        });
+    _player.setPlaylistMode(PlaylistMode.loop);
+    _player.stream.playing.listen((playing) {
+      if (mounted) setState(() {});
+    });
+    _player.stream.completed.listen((_) {
+      if (mounted) setState(() => _initialized = true);
+    });
+    _player.stream.position.listen((_) {
+      if (mounted) setState(() {});
+    });
+    _player.stream.duration.listen((_) {
+      if (mounted) setState(() {});
+    });
+    _player.stream.error.listen((error) {
+      LogService.error('视频播放错误: ${widget.videoUrl}', error);
+      if (mounted) setState(() => _hasError = true);
+    });
 
-    _controller!.setLooping(true);
-    _controller!.addListener(_onControllerUpdate);
-  }
-
-  void _onControllerUpdate() {
-    if (mounted) setState(() {});
+    _initialized = true;
+    _updatePlayState();
   }
 
   void _updatePlayState() {
-    if (_controller == null || !_initialized) return;
+    if (!_initialized) return;
     if (widget.isActive) {
-      _controller!.play();
+      _player.play();
     } else {
-      _controller!.pause();
+      _player.pause();
     }
   }
 
-  void _disposeController() {
-    _controller?.removeListener(_onControllerUpdate);
-    _controller?.dispose();
-    _controller = null;
-    _initialized = false;
-  }
-
   void _toggleMute() {
-    if (_controller == null) return;
     setState(() {
       _isMuted = !_isMuted;
-      _controller!.setVolume(_isMuted ? 0 : 1);
+      _player.setVolume(_isMuted ? 0 : 100);
     });
   }
 
   void _togglePlayPause() {
-    if (_controller == null || !_initialized) return;
+    if (!_initialized) return;
     setState(() {
-      if (_controller!.value.isPlaying) {
-        _controller!.pause();
+      if (_player.state.playing) {
+        _player.pause();
       } else {
-        _controller!.play();
+        _player.play();
       }
     });
   }
@@ -143,7 +140,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   @override
   void dispose() {
-    _disposeController();
+    _player.dispose();
     super.dispose();
   }
 
@@ -162,14 +159,14 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       );
     }
 
-    if (!_initialized || _controller == null) {
+    if (!_initialized) {
       return const Center(
         child: CircularProgressIndicator(color: Colors.white),
       );
     }
 
-    final position = _controller!.value.position;
-    final duration = _controller!.value.duration;
+    final position = _player.state.position;
+    final duration = _player.state.duration;
     final progress = duration.inMilliseconds > 0
         ? position.inMilliseconds / duration.inMilliseconds
         : 0.0;
@@ -181,9 +178,9 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          VideoPlayer(_controller!),
+          Video(controller: _videoController),
           ..._hearts.map((h) => h),
-          if (!_controller!.value.isPlaying)
+          if (!_player.state.playing)
             const Center(
               child: Icon(Icons.play_arrow, color: Colors.white70, size: 64),
             ),
@@ -212,13 +209,13 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
             bottom: 0,
             child: GestureDetector(
               onHorizontalDragUpdate: (details) {
-                if (_controller == null || !_initialized) return;
+                if (!_initialized) return;
                 final renderBox = context.findRenderObject() as RenderBox;
                 final constraints = renderBox.constraints;
                 final dx = details.localPosition.dx.clamp(0.0, constraints.maxWidth);
                 final fraction = dx / constraints.maxWidth;
-                final position = _controller!.value.duration * fraction;
-                _controller!.seekTo(position);
+                final target = _player.state.duration * fraction;
+                _player.seek(target);
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,

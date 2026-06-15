@@ -1,12 +1,12 @@
 import 'dart:io';
-import 'package:video_player/video_player.dart';
+import 'package:media_kit/media_kit.dart';
 import 'log_service.dart';
 
 class VideoPreloadService {
   static final VideoPreloadService instance = VideoPreloadService._();
   VideoPreloadService._();
 
-  final Map<String, VideoPlayerController> _cache = {};
+  final Map<String, Player> _cache = {};
   static const int _maxCache = 4;
 
   void preload(String url) {
@@ -19,27 +19,26 @@ class VideoPreloadService {
     if (uri == null) return;
 
     final isNetwork = uri.hasScheme && (uri.scheme == 'http' || uri.scheme == 'https');
-    VideoPlayerController controller;
-    if (isNetwork) {
-      controller = VideoPlayerController.networkUrl(uri);
-    } else {
+    if (!isNetwork) {
       final file = File(url);
       if (!file.existsSync()) return;
-      controller = VideoPlayerController.file(file);
     }
 
-    controller.initialize().then((_) {
+    final player = Player();
+    player.open(Media(url));
+    player.stream.completed.listen((_) {
       LogService.info('预加载完成: $url');
-    }).catchError((e, st) {
-      LogService.error('预加载失败: $url', e, st);
-      controller.dispose();
+    });
+    player.stream.error.listen((e) {
+      LogService.error('预加载失败: $url', e);
+      player.dispose();
       _cache.remove(url);
     });
 
-    _cache[url] = controller;
+    _cache[url] = player;
   }
 
-  VideoPlayerController? getController(String url) {
+  Player? getPlayer(String url) {
     return _cache[url];
   }
 
@@ -59,8 +58,8 @@ class VideoPreloadService {
   }
 
   void clear() {
-    for (final c in _cache.values) {
-      c.dispose();
+    for (final p in _cache.values) {
+      p.dispose();
     }
     _cache.clear();
   }
