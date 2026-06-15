@@ -13,20 +13,20 @@ allprojects {
     }
 }
 
-allprojects {
-    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-        kotlinOptions {
-            jvmTarget = '11'
+subprojects {
+    afterEvaluate {
+        if (project.extensions.findByName('android') != null) {
+            android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+            }
         }
-    }
-}
-
-gradle.projectsEvaluated {
-    allprojects {
-        try {
-            android.compileOptions.sourceCompatibility = JavaVersion.VERSION_11
-            android.compileOptions.targetCompatibility = JavaVersion.VERSION_11
-        } catch (Exception ignored) {
+        tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            kotlinOptions {
+                jvmTarget = '17'
+            }
         }
     }
 }
