@@ -48,17 +48,35 @@ class _HomePageState extends State<HomePage> {
           return Scaffold(
             backgroundColor: Colors.black,
             body: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('暂无视频', style: TextStyle(color: Colors.white54, fontSize: 16)),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () => provider.importLocalVideos(),
-                    icon: const Icon(Icons.add),
-                    label: const Text('导入视频'),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.video_library_outlined, color: Colors.white24, size: 64),
+                    const SizedBox(height: 16),
+                    const Text(
+                      '还没有视频',
+                      style: TextStyle(color: Colors.white54, fontSize: 18),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      '点击下方按钮导入本地视频开始浏览',
+                      style: TextStyle(color: Colors.white30, fontSize: 14),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () => provider.importLocalVideos(),
+                      icon: const Icon(Icons.add),
+                      label: const Text('导入视频'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFE2C55),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           );

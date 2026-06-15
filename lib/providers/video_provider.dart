@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import '../models/video.dart';
-import '../utils/constants.dart';
 import '../services/storage_service.dart';
 import '../services/log_service.dart';
 import '../services/video_source_service.dart';
@@ -33,17 +32,9 @@ class VideoProvider extends ChangeNotifier {
     try {
       final likedIds = _storage.likedVideos.toSet();
       final saved = await VideoSourceService.instance.getSavedVideos();
-      if (saved.isNotEmpty) {
-        _videos = saved;
-        for (final v in _videos) {
-          v.isLiked = likedIds.contains(v.id);
-        }
-      } else {
-        _videos = AppConstants.sampleVideos.map((map) {
-          final video = VideoModel.fromJson(map);
-          video.isLiked = likedIds.contains(video.id);
-          return video;
-        }).toList();
+      _videos = saved;
+      for (final v in _videos) {
+        v.isLiked = likedIds.contains(v.id);
       }
       LogService.info('加载了 ${_videos.length} 个视频');
     } catch (e, st) {
@@ -124,19 +115,6 @@ class VideoProvider extends ChangeNotifier {
       return '${wan.toStringAsFixed(1)}万';
     }
     return '$count';
-  }
-
-  Future<void> resetToSampleVideos() async {
-    final likedIds = _storage.likedVideos.toSet();
-    _videos = AppConstants.sampleVideos.map((map) {
-      final video = VideoModel.fromJson(map);
-      video.isLiked = likedIds.contains(video.id);
-      return video;
-    }).toList();
-    _currentIndex = 0;
-    await VideoSourceService.instance.saveVideos(_videos);
-    notifyListeners();
-    LogService.info('已重置为示例视频');
   }
 
   Future<void> refreshVideos() async {

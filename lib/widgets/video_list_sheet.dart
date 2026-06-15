@@ -14,21 +14,9 @@ class VideoListSheet extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Row(
-              children: [
-                const Text(
-                  '视频列表',
-                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-                const Spacer(),
-                TextButton(
-                  onPressed: () {
-                    provider.resetToSampleVideos();
-                    Navigator.pop(context);
-                  },
-                  child: const Text('恢复默认', style: TextStyle(color: Colors.white54)),
-                ),
-              ],
+            child: const Text(
+              '视频列表',
+              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
             ),
           ),
           Flexible(
