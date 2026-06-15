@@ -97,16 +97,16 @@
 - [x] 统一所有子项目 Kotlin JVM 目标为 21，修复 volume_controller 等插件编译失败
 
 ### 0.5.4 (PATCH) - 重构优化
-- [ ] 修复 toggleLike/incrementComments 中文数字解析 Bug（"1.2万" 解析失败导致数据丢失）
-- [ ] 修复 VideoPlayerWidget 重复添加监听器导致内存泄漏
-- [ ] 拆分 home_page.dart 提取独立组件（_TopToolbar、_VideoListSheet、_VideoPage）
-- [ ] 优化 getVideosByIds 查找效率（O(n) → O(1)）
-- [ ] 修复 LogService 同步文件写入为异步
-- [ ] 移除 _CircleAvatar 未使用的 video 参数
-- [ ] 搜索页添加防抖
-- [ ] InteractionService 添加防抖持久化
-- [ ] 完善测试用例
-- [ ] 代码审查与清理
+- [x] 修复 toggleLike/incrementComments 中文数字解析 Bug（"1.2万" 解析失败导致数据丢失）
+- [x] 修复 VideoPlayerWidget 重复添加监听器导致内存泄漏
+- [x] 拆分 home_page.dart 提取独立组件（_TopToolbar、_VideoListSheet、_VideoPage）
+- [x] 优化 getVideosByIds 查找效率（O(n) → O(1)）
+- [x] 修复 LogService 同步文件写入为异步
+- [x] 移除 _CircleAvatar 未使用的 video 参数
+- [x] 搜索页添加防抖
+- [x] InteractionService 添加防抖持久化
+- [x] 完善测试用例
+- [x] 代码审查与清理
 
 ## 长期规划 (1.0.x)
 
