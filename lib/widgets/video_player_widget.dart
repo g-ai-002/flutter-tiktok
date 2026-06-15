@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
@@ -27,6 +28,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   bool _hasError = false;
   bool _isMuted = false;
   final List<_HeartAnimation> _hearts = [];
+  StreamSubscription? _playingSub;
+  StreamSubscription? _completedSub;
+  StreamSubscription? _positionSub;
+  StreamSubscription? _durationSub;
+  StreamSubscription? _errorSub;
 
   @override
   void initState() {
@@ -50,6 +56,9 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   void _initPlayer() {
     _hasError = false;
     _initialized = false;
+
+    _cancelSubscriptions();
+
     final uri = Uri.tryParse(widget.videoUrl);
     if (uri == null) {
       _hasError = true;
@@ -70,25 +79,33 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     }
 
     _player.setPlaylistMode(PlaylistMode.loop);
-    _player.stream.playing.listen((playing) {
+    _playingSub = _player.stream.playing.listen((_) {
       if (mounted) setState(() {});
     });
-    _player.stream.completed.listen((_) {
+    _completedSub = _player.stream.completed.listen((_) {
       if (mounted) setState(() => _initialized = true);
     });
-    _player.stream.position.listen((_) {
+    _positionSub = _player.stream.position.listen((_) {
       if (mounted) setState(() {});
     });
-    _player.stream.duration.listen((_) {
+    _durationSub = _player.stream.duration.listen((_) {
       if (mounted) setState(() {});
     });
-    _player.stream.error.listen((error) {
+    _errorSub = _player.stream.error.listen((error) {
       LogService.error('视频播放错误: ${widget.videoUrl}', error);
       if (mounted) setState(() => _hasError = true);
     });
 
     _initialized = true;
     _updatePlayState();
+  }
+
+  void _cancelSubscriptions() {
+    _playingSub?.cancel();
+    _completedSub?.cancel();
+    _positionSub?.cancel();
+    _durationSub?.cancel();
+    _errorSub?.cancel();
   }
 
   void _updatePlayState() {
@@ -140,6 +157,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   @override
   void dispose() {
+    _cancelSubscriptions();
     _player.dispose();
     super.dispose();
   }
