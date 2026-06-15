@@ -127,6 +127,16 @@
 - [x] 修复视频保持原比例填充容器 (fix #3)
 - [x] 修复 Android 构建 compileSdk 兼容性问题
 
+### 0.6.3 (PATCH) - 重构优化
+- [x] 提取 _formatDuration 为共享工具函数
+- [x] 提取 _showSpeedSheet 为独立组件 SpeedSheet
+- [x] 修复 _heartId 在视频切换时不重置的 Bug
+- [x] 提取 _showCommentSheet 为独立组件 CommentSheet
+- [x] 提取 _showHistorySheet 为独立组件 HistorySheet
+- [x] 提取 profile_page 中 _showListSheet 为共享组件 VideoListSheet
+- [x] 代码审查与清理
+- [x] 更新测试用例
+
 ## 长期规划 (1.0.x)
 
 ### 1.0.0 (MAJOR) - 完整功能
