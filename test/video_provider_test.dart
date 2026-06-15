@@ -63,5 +63,10 @@ void main() {
     test('getVideosByIds with empty ids returns empty', () {
       expect(provider.getVideosByIds([]), isEmpty);
     });
+
+    test('refreshVideos does not throw', () async {
+      await provider.refreshVideos();
+      expect(provider.isLoading, false);
+    });
   });
 }
