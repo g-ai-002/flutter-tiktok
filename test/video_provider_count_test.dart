@@ -22,7 +22,7 @@ void main() {
       provider.videos.add(video);
 
       provider.toggleLike('test_wan');
-      expect(video.likes, '12001');
+      expect(video.likes, '1.2万');
       expect(video.isLiked, true);
 
       provider.toggleLike('test_wan');
@@ -54,10 +54,10 @@ void main() {
       provider.videos.add(video);
 
       provider.incrementComments('test_cmt');
-      expect(video.comments, '12001');
+      expect(video.comments, '1.2万');
     });
 
-    test('toggleLike 处理 9999 → 1.0万 边界', () {
+    test('toggleLike 处理 9999 → 1万 边界', () {
       final video = VideoModel(
         id: 'test_boundary', title: '测试', author: 'a', description: '', url: '', thumbnail: '',
         likes: '9999', comments: '0', shares: '0',
@@ -65,7 +65,7 @@ void main() {
       provider.videos.add(video);
 
       provider.toggleLike('test_boundary');
-      expect(video.likes, '1.0万');
+      expect(video.likes, '1万');
     });
   });
 }
