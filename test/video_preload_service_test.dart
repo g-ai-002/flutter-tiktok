@@ -13,8 +13,8 @@ void main() {
       expect(() => service.preload('/nonexistent/path/video.mp4'), returnsNormally);
     });
 
-    test('getController returns null for unknown url', () {
-      expect(service.getController('unknown_url'), isNull);
+    test('getPlayer returns null for unknown url', () {
+      expect(service.getPlayer('unknown_url'), isNull);
     });
 
     test('preloadAdjacent with empty list does not throw', () {
