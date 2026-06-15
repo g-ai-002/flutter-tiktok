@@ -67,8 +67,10 @@ class VideoSourceService {
       });
 
       player.stream.videoParams.listen((params) {
-        if (params != null && params.width > 0 && params.height > 0) {
-          result['resolution'] = '${params.width}x${params.height}';
+        final w = params.w;
+        final h = params.h;
+        if (w != null && h != null && w > 0 && h > 0) {
+          result['resolution'] = '${w}x$h';
         }
         if (!completer.isCompleted) {
           timeout?.cancel();
