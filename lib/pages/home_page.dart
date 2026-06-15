@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/video_provider.dart';
 import '../services/interaction_service.dart';
+import '../services/video_preload_service.dart';
 import '../widgets/video_player_widget.dart';
 import '../widgets/video_actions.dart';
 import '../models/video.dart';
@@ -21,6 +22,10 @@ class _HomePageState extends State<HomePage> {
     provider.setCurrentIndex(index);
     final video = provider.videos[index];
     InteractionService.instance.addToHistory(video.id);
+    VideoPreloadService.instance.preloadAdjacent(
+      provider.videos.map((v) => v.url).toList(),
+      index,
+    );
   }
 
   @override
@@ -395,7 +400,11 @@ class _VideoPage extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        VideoPlayerWidget(videoUrl: video.url, isActive: isActive),
+        VideoPlayerWidget(
+          videoUrl: video.url,
+          isActive: isActive,
+          onDoubleTap: onLike,
+        ),
         Positioned(
           left: 16,
           right: 80,
