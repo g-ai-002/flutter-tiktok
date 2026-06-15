@@ -240,7 +240,12 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Video(controller: _videoController),
+          Video(
+            controller: _videoController,
+            fit: BoxFit.contain,
+            width: double.infinity,
+            height: double.infinity,
+          ),
           ..._hearts.map((h) => h),
           if (!_player.state.playing)
             const Center(
