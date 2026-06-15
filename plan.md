@@ -93,6 +93,9 @@
 - [x] 更新 pubspec.yaml 依赖
 - [x] 更新 CI 构建流程适配 media_kit
 
+### 0.5.3 (PATCH) - 修复 Android 构建 JVM 兼容性
+- [x] 统一所有子项目 Kotlin JVM 目标为 21，修复 volume_controller 等插件编译失败
+
 ## 长期规划 (1.0.x)
 
 ### 1.0.0 (MAJOR) - 完整功能

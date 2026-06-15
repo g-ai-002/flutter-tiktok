@@ -22,6 +22,9 @@
 
 ## 版本历史
 
+### 0.5.3 (修复)
+- 统一所有子项目 Kotlin JVM 目标为 21，修复 Android 构建失败
+
 ### 0.5.2 (修复)
 - 替换 video_player 为 media_kit，修复 Windows 平台视频播放
 
