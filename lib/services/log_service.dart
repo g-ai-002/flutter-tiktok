@@ -44,7 +44,7 @@ class LogService {
     _buffer.add(line);
     if (_buffer.length > _maxBufferLines) _buffer.removeAt(0);
     try {
-      _logFile?.writeAsStringSync('$line\n', mode: FileMode.append);
+      _logFile?.writeAsString('$line\n', mode: FileMode.append);
     } catch (_) {}
   }
 

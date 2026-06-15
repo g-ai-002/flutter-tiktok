@@ -50,7 +50,7 @@ class VideoActions extends StatelessWidget {
           onTap: onShare,
         ),
         const SizedBox(height: 20),
-        _CircleAvatar(video: video),
+        _CircleAvatar(),
       ],
     );
   }
@@ -89,8 +89,7 @@ class _ActionButton extends StatelessWidget {
 }
 
 class _CircleAvatar extends StatelessWidget {
-  final VideoModel video;
-  const _CircleAvatar({required this.video});
+  const _CircleAvatar();
 
   @override
   Widget build(BuildContext context) {

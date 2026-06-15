@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import '../models/comment.dart';
 import '../services/log_service.dart';
@@ -11,6 +12,25 @@ class InteractionService {
   final Set<String> _favorites = {};
   final List<String> _history = [];
   static const int _maxHistory = 50;
+  Timer? _saveTimer;
+  bool _dirty = false;
+
+  void _markDirty() {
+    _dirty = true;
+    _saveTimer?.cancel();
+    _saveTimer = Timer(const Duration(milliseconds: 500), () {
+      if (_dirty) _flushAll();
+    });
+  }
+
+  Future<void> _flushAll() async {
+    _dirty = false;
+    await Future.wait([
+      _saveJson('comments.json', _comments.map((k, v) => MapEntry(k, v.map((c) => c.toJson()).toList()))),
+      _saveJson('favorites.json', _favorites.toList()),
+      _saveJson('history.json', _history),
+    ]);
+  }
 
   // 评论
   List<CommentModel> getComments(String videoId) => _comments[videoId] ?? [];
@@ -25,7 +45,7 @@ class InteractionService {
       createdAt: DateTime.now(),
     );
     _comments.putIfAbsent(videoId, () => []).add(comment);
-    _saveJson('comments.json', _comments.map((k, v) => MapEntry(k, v.map((c) => c.toJson()).toList())));
+    _markDirty();
     LogService.info('添加评论: $videoId');
   }
 
@@ -39,7 +59,7 @@ class InteractionService {
     } else {
       _favorites.add(videoId);
     }
-    _saveJson('favorites.json', _favorites.toList());
+    _markDirty();
     LogService.info('${_favorites.contains(videoId) ? "收藏" : "取消收藏"}: $videoId');
   }
 
@@ -52,7 +72,7 @@ class InteractionService {
     if (_history.length > _maxHistory) {
       _history.removeRange(_maxHistory, _history.length);
     }
-    _saveJson('history.json', _history);
+    _markDirty();
   }
 
   // 持久化

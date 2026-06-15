@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/video.dart';
@@ -17,6 +18,7 @@ class _SearchPageState extends State<SearchPage> {
   final _focusNode = FocusNode();
   List<VideoModel> _results = [];
   bool _hasSearched = false;
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -28,25 +30,29 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
   }
 
   void _search(String query, List<VideoModel> videos) {
-    if (query.trim().isEmpty) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      if (query.trim().isEmpty) {
+        setState(() {
+          _results = [];
+          _hasSearched = false;
+        });
+        return;
+      }
+      final q = query.trim().toLowerCase();
       setState(() {
-        _results = [];
-        _hasSearched = false;
+        _results = videos.where((v) {
+          return v.title.toLowerCase().contains(q) || v.author.toLowerCase().contains(q);
+        }).toList();
+        _hasSearched = true;
       });
-      return;
-    }
-    final q = query.trim().toLowerCase();
-    setState(() {
-      _results = videos.where((v) {
-        return v.title.toLowerCase().contains(q) || v.author.toLowerCase().contains(q);
-      }).toList();
-      _hasSearched = true;
     });
   }
 
