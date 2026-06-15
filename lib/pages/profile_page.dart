@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/video.dart';
 import '../providers/video_provider.dart';
 import '../services/interaction_service.dart';
+import '../widgets/video_item_list_sheet.dart';
 import 'settings_page.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -72,7 +73,13 @@ class ProfilePage extends StatelessWidget {
             _SectionHeader(
               title: '我的收藏',
               count: favorites.length,
-              onTap: () => _showListSheet(context, '我的收藏', favorites, provider),
+              onTap: () => VideoItemListSheet.show(
+                context,
+                title: '我的收藏',
+                videos: favorites,
+                provider: provider,
+                onVideoSelected: onVideoSelected,
+              ),
             ),
             if (favorites.isNotEmpty)
               SizedBox(
@@ -91,7 +98,13 @@ class ProfilePage extends StatelessWidget {
             _SectionHeader(
               title: '观看历史',
               count: historyVideos.length,
-              onTap: () => _showListSheet(context, '观看历史', historyVideos, provider),
+              onTap: () => VideoItemListSheet.show(
+                context,
+                title: '观看历史',
+                videos: historyVideos,
+                provider: provider,
+                onVideoSelected: onVideoSelected,
+              ),
             ),
             if (historyVideos.isNotEmpty)
               SizedBox(
@@ -118,58 +131,6 @@ class ProfilePage extends StatelessWidget {
     if (idx != -1) {
       onVideoSelected?.call(idx);
     }
-  }
-
-  void _showListSheet(BuildContext context, String title, List<VideoModel> videos, VideoProvider provider) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF1A1A1A),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Text(
-                title,
-                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-            ),
-            Flexible(
-              child: videos.isEmpty
-                  ? const Padding(
-                      padding: EdgeInsets.all(32),
-                      child: Center(child: Text('暂无内容', style: TextStyle(color: Colors.white38))),
-                    )
-                  : ListView.builder(
-                      itemCount: videos.length,
-                      itemBuilder: (_, i) {
-                        final v = videos[i];
-                        return ListTile(
-                          leading: const Icon(Icons.play_circle_outline, color: Colors.white54),
-                          title: Text(
-                            v.title,
-                            style: const TextStyle(color: Colors.white, fontSize: 14),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Text(v.author, style: const TextStyle(color: Colors.white38, fontSize: 12)),
-                          onTap: () {
-                            Navigator.pop(ctx);
-                            _playVideo(context, v, provider);
-                          },
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
