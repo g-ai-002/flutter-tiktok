@@ -29,6 +29,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _refreshVideos() async {
+    await context.read<VideoProvider>().refreshVideos();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<VideoProvider>(
@@ -64,23 +68,28 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.black,
           body: Stack(
             children: [
-              PageView.builder(
-                controller: widget.pageController,
-                scrollDirection: Axis.vertical,
-                itemCount: provider.videos.length,
-                onPageChanged: _onPageChanged,
-                itemBuilder: (context, index) {
-                  final video = provider.videos[index];
-                  final isActive = index == provider.currentIndex;
-                  return VideoPage(
-                    video: video,
-                    isActive: isActive,
-                    onLike: () => provider.toggleLike(video.id),
-                    onComment: () => _showCommentSheet(context, video),
-                    onShare: () {},
-                    onFavorite: () => InteractionService.instance.toggleFavorite(video.id),
-                  );
-                },
+              RefreshIndicator(
+                color: const Color(0xFFFE2C55),
+                backgroundColor: const Color(0xFF1A1A1A),
+                onRefresh: _refreshVideos,
+                child: PageView.builder(
+                  controller: widget.pageController,
+                  scrollDirection: Axis.vertical,
+                  itemCount: provider.videos.length,
+                  onPageChanged: _onPageChanged,
+                  itemBuilder: (context, index) {
+                    final video = provider.videos[index];
+                    final isActive = index == provider.currentIndex;
+                    return VideoPage(
+                      video: video,
+                      isActive: isActive,
+                      onLike: () => provider.toggleLike(video.id),
+                      onComment: () => _showCommentSheet(context, video),
+                      onShare: () {},
+                      onFavorite: () => InteractionService.instance.toggleFavorite(video.id),
+                    );
+                  },
+                ),
               ),
               Positioned(
                 top: MediaQuery.of(context).padding.top + 8,

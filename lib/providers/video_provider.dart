@@ -138,4 +138,8 @@ class VideoProvider extends ChangeNotifier {
     notifyListeners();
     LogService.info('已重置为示例视频');
   }
+
+  Future<void> refreshVideos() async {
+    await _loadVideos();
+  }
 }
