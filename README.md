@@ -16,11 +16,14 @@
 
 - **框架**: Flutter 3.44+
 - **状态管理**: Provider
-- **视频播放**: video_player
+- **视频播放**: media_kit
 - **存储**: shared_preferences
 - **桌面窗口**: window_manager
 
 ## 版本历史
+
+### 0.5.2 (修复)
+- 替换 video_player 为 media_kit，修复 Windows 平台视频播放
 
 ### 0.5.1 (修复)
 - 修复 CI 编译错误 (heart 变量引用、seek 方法名)

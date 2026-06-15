@@ -86,6 +86,13 @@
 - [x] 修复 heart 变量声明前引用问题
 - [x] 修复 seek 方法名应为 seekTo
 
+### 0.5.2 (PATCH) - 修复 Windows 视频播放
+- [x] 替换 video_player 为 media_kit 修复 Windows 平台视频播放
+- [x] 更新 VideoPlayerWidget 适配 media_kit API
+- [x] 更新 VideoPreloadService 适配 media_kit API
+- [x] 更新 pubspec.yaml 依赖
+- [x] 更新 CI 构建流程适配 media_kit
+
 ## 长期规划 (1.0.x)
 
 ### 1.0.0 (MAJOR) - 完整功能
