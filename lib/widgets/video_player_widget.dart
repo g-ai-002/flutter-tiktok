@@ -130,14 +130,15 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   void _addHeart(Offset position) {
     final id = _heartId++;
-    final heart = _HeartAnimation(
-      key: ValueKey(id),
-      position: position,
-      onDone: () {
-        setState(() => _hearts.removeWhere((h) => h.key == heart.key));
-      },
-    );
-    setState(() => _hearts.add(heart));
+    setState(() {
+      _hearts.add(_HeartAnimation(
+        key: ValueKey(id),
+        position: position,
+        onDone: () {
+          setState(() => _hearts.removeWhere((h) => h.key == ValueKey(id)));
+        },
+      ));
+    });
   }
 
   @override
@@ -217,7 +218,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                 final dx = details.localPosition.dx.clamp(0.0, constraints.maxWidth);
                 final fraction = dx / constraints.maxWidth;
                 final position = _controller!.value.duration * fraction;
-                _controller!.seek(position);
+                _controller!.seekTo(position);
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
