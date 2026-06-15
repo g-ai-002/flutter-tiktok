@@ -22,16 +22,8 @@ class VideoProvider extends ChangeNotifier {
       _videos.isNotEmpty && _currentIndex < _videos.length ? _videos[_currentIndex] : null;
 
   List<VideoModel> getVideosByIds(List<String> ids) {
-    return ids
-        .map((id) {
-          try {
-            return _videos.firstWhere((v) => v.id == id);
-          } catch (_) {
-            return null;
-          }
-        })
-        .whereType<VideoModel>()
-        .toList();
+    final idSet = ids.toSet();
+    return _videos.where((v) => idSet.contains(v.id)).toList();
   }
 
   Future<void> _loadVideos() async {
@@ -75,8 +67,8 @@ class VideoProvider extends ChangeNotifier {
     final video = _videos[index];
     video.isLiked = !video.isLiked;
 
-    final currentLikes = int.tryParse(video.likes) ?? 0;
-    video.likes = video.isLiked ? '${currentLikes + 1}' : '${currentLikes > 0 ? currentLikes - 1 : 0}';
+    final currentLikes = _parseCount(video.likes);
+    video.likes = _formatCount(video.isLiked ? currentLikes + 1 : (currentLikes > 0 ? currentLikes - 1 : 0));
 
     final likedIds = _videos.where((v) => v.isLiked).map((v) => v.id).toList();
     _storage.setLikedVideos(likedIds);
@@ -109,9 +101,29 @@ class VideoProvider extends ChangeNotifier {
     final index = _videos.indexWhere((v) => v.id == videoId);
     if (index == -1) return;
     final video = _videos[index];
-    final current = int.tryParse(video.comments) ?? 0;
-    video.comments = '${current + 1}';
+    final current = _parseCount(video.comments);
+    video.comments = _formatCount(current + 1);
     notifyListeners();
+  }
+
+  int _parseCount(String text) {
+    final cleaned = text.trim();
+    if (cleaned.endsWith('万')) {
+      final num = double.tryParse(cleaned.replaceAll('万', ''));
+      if (num != null) return (num * 10000).round();
+    }
+    return int.tryParse(cleaned) ?? 0;
+  }
+
+  String _formatCount(int count) {
+    if (count >= 10000) {
+      final wan = count / 10000;
+      if (wan == wan.roundToDouble()) {
+        return '${wan.round()}万';
+      }
+      return '${wan.toStringAsFixed(1)}万';
+    }
+    return '$count';
   }
 
   Future<void> resetToSampleVideos() async {

@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_tiktok/providers/video_provider.dart';
 import 'package:flutter_tiktok/services/storage_service.dart';
+import 'package:flutter_tiktok/models/video.dart';
 
 void main() {
   group('VideoProvider', () {
@@ -41,6 +42,26 @@ void main() {
 
     test('incrementComments does not throw for invalid id', () {
       expect(() => provider.incrementComments('nonexistent'), returnsNormally);
+    });
+
+    test('getVideosByIds returns matching videos', () {
+      final v1 = VideoModel(
+        id: 'a', title: 'A', author: 'a', description: '', url: '', thumbnail: '',
+        likes: '0', comments: '0', shares: '0',
+      );
+      final v2 = VideoModel(
+        id: 'b', title: 'B', author: 'b', description: '', url: '', thumbnail: '',
+        likes: '0', comments: '0', shares: '0',
+      );
+      provider.videos.addAll([v1, v2]);
+
+      final result = provider.getVideosByIds(['a', 'c']);
+      expect(result.length, 1);
+      expect(result.first.id, 'a');
+    });
+
+    test('getVideosByIds with empty ids returns empty', () {
+      expect(provider.getVideosByIds([]), isEmpty);
     });
   });
 }
