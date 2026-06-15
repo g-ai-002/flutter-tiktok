@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:path/path.dart' as p;
 import '../models/video.dart';
 import '../services/log_service.dart';
@@ -21,6 +24,7 @@ class VideoSourceService {
       for (final file in result.files) {
         if (file.path == null) continue;
         final name = p.basenameWithoutExtension(file.name);
+        final metadata = await _extractMetadata(file.path!);
         videos.add(VideoModel(
           id: 'local_${DateTime.now().millisecondsSinceEpoch}_${videos.length}',
           title: name,
@@ -31,6 +35,9 @@ class VideoSourceService {
           likes: '0',
           comments: '0',
           shares: '0',
+          durationMs: metadata['durationMs'] as int? ?? 0,
+          resolution: metadata['resolution'] as String? ?? '',
+          fileSize: metadata['fileSize'] as int? ?? 0,
         ));
       }
       LogService.info('导入了 ${videos.length} 个本地视频');
@@ -39,6 +46,56 @@ class VideoSourceService {
       LogService.error('导入视频失败', e, st);
       return [];
     }
+  }
+
+  Future<Map<String, dynamic>> _extractMetadata(String filePath) async {
+    final result = <String, dynamic>{};
+    try {
+      final file = File(filePath);
+      if (await file.exists()) {
+        result['fileSize'] = await file.length();
+      }
+    } catch (_) {}
+
+    try {
+      final player = Player();
+      final completer = Completer<void>();
+      Timer? timeout;
+
+      player.stream.duration.listen((duration) {
+        result['durationMs'] = duration.inMilliseconds;
+      });
+
+      player.stream.videoParams.listen((params) {
+        if (params != null && params.width > 0 && params.height > 0) {
+          result['resolution'] = '${params.width}x${params.height}';
+        }
+        if (!completer.isCompleted) {
+          timeout?.cancel();
+          completer.complete();
+        }
+      });
+
+      player.stream.error.listen((_) {
+        if (!completer.isCompleted) {
+          timeout?.cancel();
+          completer.complete();
+        }
+      });
+
+      player.open(Media(filePath));
+
+      timeout = Timer(const Duration(seconds: 3), () {
+        if (!completer.isCompleted) completer.complete();
+      });
+
+      await completer.future;
+      player.dispose();
+    } catch (e) {
+      LogService.error('提取视频元数据失败: $filePath', e);
+    }
+
+    return result;
   }
 
   Future<List<VideoModel>> getSavedVideos() async {
