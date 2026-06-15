@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/video.dart';
 import '../providers/video_provider.dart';
 import '../services/interaction_service.dart';
+import 'settings_page.dart';
 
 class ProfilePage extends StatelessWidget {
   final void Function(int index)? onVideoSelected;
@@ -28,6 +29,15 @@ class ProfilePage extends StatelessWidget {
         elevation: 0,
         title: const Text('个人主页', style: TextStyle(color: Colors.white, fontSize: 18)),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, color: Colors.white70),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsPage()),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(

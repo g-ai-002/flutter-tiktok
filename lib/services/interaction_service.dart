@@ -75,6 +75,12 @@ class InteractionService {
     _markDirty();
   }
 
+  void clearHistory() {
+    _history.clear();
+    _markDirty();
+    LogService.info('清除观看历史');
+  }
+
   // 持久化
   Future<void> _saveJson(String filename, dynamic data) async {
     try {
