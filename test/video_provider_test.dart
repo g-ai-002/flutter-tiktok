@@ -68,5 +68,84 @@ void main() {
       await provider.refreshVideos();
       expect(provider.isLoading, false);
     });
+
+    test('initial sort mode is importTime', () {
+      expect(provider.sortMode, VideoSortMode.importTime);
+      expect(provider.sortAscending, false);
+    });
+
+    test('setSortMode toggles ascending on same mode', () {
+      expect(provider.sortAscending, false);
+      provider.setSortMode(VideoSortMode.importTime);
+      expect(provider.sortAscending, true);
+      provider.setSortMode(VideoSortMode.importTime);
+      expect(provider.sortAscending, false);
+    });
+
+    test('setSortMode switches mode and resets ascending', () {
+      provider.setSortMode(VideoSortMode.importTime);
+      expect(provider.sortAscending, true);
+      provider.setSortMode(VideoSortMode.name);
+      expect(provider.sortMode, VideoSortMode.name);
+      expect(provider.sortAscending, false);
+    });
+
+    test('sort by name works', () {
+      final v1 = VideoModel(
+        id: '1', title: 'C', author: '', description: '', url: '', thumbnail: '',
+        likes: '0', comments: '0', shares: '0',
+      );
+      final v2 = VideoModel(
+        id: '2', title: 'A', author: '', description: '', url: '', thumbnail: '',
+        likes: '0', comments: '0', shares: '0',
+      );
+      final v3 = VideoModel(
+        id: '3', title: 'B', author: '', description: '', url: '', thumbnail: '',
+        likes: '0', comments: '0', shares: '0',
+      );
+      provider.videos.addAll([v1, v2, v3]);
+
+      provider.setSortMode(VideoSortMode.name);
+      expect(provider.videos[0].title, 'C');
+      expect(provider.videos[1].title, 'B');
+      expect(provider.videos[2].title, 'A');
+
+      provider.setSortMode(VideoSortMode.name);
+      expect(provider.videos[0].title, 'A');
+      expect(provider.videos[1].title, 'B');
+      expect(provider.videos[2].title, 'C');
+    });
+
+    test('sort by duration works', () {
+      final v1 = VideoModel(
+        id: '1', title: '', author: '', description: '', url: '', thumbnail: '',
+        likes: '0', comments: '0', shares: '0', durationMs: 10000,
+      );
+      final v2 = VideoModel(
+        id: '2', title: '', author: '', description: '', url: '', thumbnail: '',
+        likes: '0', comments: '0', shares: '0', durationMs: 5000,
+      );
+      provider.videos.addAll([v1, v2]);
+
+      provider.setSortMode(VideoSortMode.duration);
+      expect(provider.videos[0].durationMs, 10000);
+      expect(provider.videos[1].durationMs, 5000);
+    });
+
+    test('sort by fileSize works', () {
+      final v1 = VideoModel(
+        id: '1', title: '', author: '', description: '', url: '', thumbnail: '',
+        likes: '0', comments: '0', shares: '0', fileSize: 1000,
+      );
+      final v2 = VideoModel(
+        id: '2', title: '', author: '', description: '', url: '', thumbnail: '',
+        likes: '0', comments: '0', shares: '0', fileSize: 2000,
+      );
+      provider.videos.addAll([v1, v2]);
+
+      provider.setSortMode(VideoSortMode.fileSize);
+      expect(provider.videos[0].fileSize, 2000);
+      expect(provider.videos[1].fileSize, 1000);
+    });
   });
 }
