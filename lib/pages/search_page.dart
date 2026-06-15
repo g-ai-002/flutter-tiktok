@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/video.dart';
 import '../providers/video_provider.dart';
+import '../utils/format.dart';
 
 class SearchPage extends StatefulWidget {
   final void Function(int index)? onVideoSelected;
@@ -129,7 +130,7 @@ class _SearchPageState extends State<SearchPage> {
             overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
-            video.author,
+            _buildSubtitle(video),
             style: const TextStyle(color: Colors.white38, fontSize: 12),
           ),
           trailing: Text(
@@ -145,5 +146,13 @@ class _SearchPageState extends State<SearchPage> {
         );
       },
     );
+  }
+
+  String _buildSubtitle(VideoModel v) {
+    final parts = <String>[];
+    if (v.author.isNotEmpty) parts.add(v.author);
+    if (v.durationMs > 0) parts.add(formatDuration(v.duration));
+    if (v.resolution.isNotEmpty) parts.add(v.resolution);
+    return parts.join(' · ');
   }
 }

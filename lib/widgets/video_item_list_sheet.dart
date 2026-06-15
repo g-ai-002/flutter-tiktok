@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/video.dart';
 import '../providers/video_provider.dart';
+import '../utils/format.dart';
 
 class VideoItemListSheet extends StatelessWidget {
   final String title;
@@ -70,7 +71,12 @@ class VideoItemListSheet extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        subtitle: Text(v.author, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                        subtitle: Text(
+                          _buildSubtitle(v),
+                          style: const TextStyle(color: Colors.white38, fontSize: 12),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         onTap: () {
                           Navigator.pop(context);
                           final idx = provider.videos.indexWhere((pv) => pv.id == v.id);
@@ -85,5 +91,13 @@ class VideoItemListSheet extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _buildSubtitle(VideoModel v) {
+    final parts = <String>[];
+    if (v.author.isNotEmpty) parts.add(v.author);
+    if (v.durationMs > 0) parts.add(formatDuration(v.duration));
+    if (v.resolution.isNotEmpty) parts.add(v.resolution);
+    return parts.join(' · ');
   }
 }
