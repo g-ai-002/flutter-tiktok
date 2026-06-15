@@ -124,8 +124,8 @@
 - [x] 更新测试用例
 
 ### 0.6.2 (PATCH) - 修复视频比例与 Android 构建
-- [ ] 修复视频保持原比例填充容器 (fix #3)
-- [ ] 修复 Android 构建 compileSdk 兼容性问题
+- [x] 修复视频保持原比例填充容器 (fix #3)
+- [x] 修复 Android 构建 compileSdk 兼容性问题
 
 ## 长期规划 (1.0.x)
 
