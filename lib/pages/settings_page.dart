@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
+import '../providers/video_provider.dart';
 import '../services/interaction_service.dart';
 import '../services/video_preload_service.dart';
 import '../utils/constants.dart';
@@ -11,6 +12,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
+    final videoProvider = context.watch<VideoProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? Colors.black : Colors.white;
     final textColor = isDark ? Colors.white : Colors.black87;
@@ -37,6 +39,22 @@ class SettingsPage extends StatelessWidget {
             value: themeProvider.isDarkMode,
             activeColor: const Color(0xFFFE2C55),
             onChanged: (_) => themeProvider.toggleTheme(),
+          ),
+          Divider(color: dividerColor),
+          _SectionHeader(title: '播放', textColor: subTextColor),
+          SwitchListTile(
+            secondary: Icon(
+              videoProvider.autoPlay ? Icons.play_circle_fill : Icons.play_circle_outline,
+              color: subColor,
+            ),
+            title: Text('自动连播', style: TextStyle(color: textColor)),
+            subtitle: Text(
+              '切换视频时自动开始播放',
+              style: TextStyle(color: subTextColor, fontSize: 12),
+            ),
+            value: videoProvider.autoPlay,
+            activeColor: const Color(0xFFFE2C55),
+            onChanged: (v) => videoProvider.setAutoPlay(v),
           ),
           Divider(color: dividerColor),
           _SectionHeader(title: '数据管理', textColor: subTextColor),

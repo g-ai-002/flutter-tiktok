@@ -10,12 +10,14 @@ import 'heart_animation.dart';
 class VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
   final bool isActive;
+  final bool autoPlay;
   final VoidCallback? onDoubleTap;
 
   const VideoPlayerWidget({
     super.key,
     required this.videoUrl,
     required this.isActive,
+    this.autoPlay = true,
     this.onDoubleTap,
   });
 
@@ -125,7 +127,9 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         _player.open(Media(widget.videoUrl));
         _player.setPlaylistMode(PlaylistMode.loop);
       }
-      _player.play();
+      if (widget.autoPlay) {
+        _player.play();
+      }
     } else {
       _player.stop();
       _stopped = true;

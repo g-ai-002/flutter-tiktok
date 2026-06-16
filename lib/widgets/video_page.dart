@@ -7,6 +7,7 @@ import 'video_actions.dart';
 class VideoPage extends StatefulWidget {
   final VideoModel video;
   final bool isActive;
+  final bool autoPlay;
   final VoidCallback onLike;
   final VoidCallback onComment;
   final VoidCallback onShare;
@@ -16,6 +17,7 @@ class VideoPage extends StatefulWidget {
     super.key,
     required this.video,
     required this.isActive,
+    this.autoPlay = true,
     required this.onLike,
     required this.onComment,
     required this.onShare,
@@ -72,6 +74,7 @@ class _VideoPageState extends State<VideoPage> with WidgetsBindingObserver {
         VideoPlayerWidget(
           videoUrl: widget.video.url,
           isActive: widget.isActive,
+          autoPlay: widget.autoPlay,
           onDoubleTap: widget.onLike,
         ),
         if (!_isFullscreen) ...[

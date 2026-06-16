@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import '../models/video.dart';
 import '../services/interaction_service.dart';
 
@@ -47,7 +48,9 @@ class VideoActions extends StatelessWidget {
         _ActionButton(
           icon: Icons.share,
           label: video.shares,
-          onTap: onShare,
+          onTap: () {
+            Share.share('${video.title} - ${video.description}');
+          },
         ),
         const SizedBox(height: 20),
         _CircleAvatar(),

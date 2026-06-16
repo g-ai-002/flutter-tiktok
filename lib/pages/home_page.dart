@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/video_provider.dart';
 import '../services/interaction_service.dart';
 import '../services/video_preload_service.dart';
+import '../services/category_service.dart';
 import '../widgets/video_page.dart';
 import '../widgets/top_toolbar.dart';
 import '../widgets/video_list_sheet.dart';
@@ -19,13 +20,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String? _lastCategoryFilter;
+
   void _onPageChanged(int index) {
     final provider = context.read<VideoProvider>();
     provider.setCurrentIndex(index);
-    final video = provider.videos[index];
-    InteractionService.instance.addToHistory(video.id);
-    final urls = provider.videos.map((v) => v.url).toList();
-    VideoPreloadService.instance.preloadAdjacent(urls, index);
+    final videos = provider.videos;
+    if (index < videos.length) {
+      final video = videos[index];
+      InteractionService.instance.addToHistory(video.id);
+      final urls = videos.map((v) => v.url).toList();
+      VideoPreloadService.instance.preloadAdjacent(urls, index);
+    }
   }
 
   Future<void> _refreshVideos() async {
@@ -42,6 +48,15 @@ class _HomePageState extends State<HomePage> {
 
     return Consumer<VideoProvider>(
       builder: (context, provider, _) {
+        if (provider.categoryFilter != _lastCategoryFilter) {
+          _lastCategoryFilter = provider.categoryFilter;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (widget.pageController.hasClients) {
+              widget.pageController.jumpToPage(0);
+            }
+          });
+        }
+
         if (provider.isLoading) {
           return Scaffold(
             backgroundColor: bgColor,
@@ -106,6 +121,7 @@ class _HomePageState extends State<HomePage> {
                     return VideoPage(
                       video: video,
                       isActive: isActive,
+                      autoPlay: provider.autoPlay,
                       onLike: () => provider.toggleLike(video.id),
                       onComment: () => CommentSheet.show(context, video),
                       onShare: () {},
