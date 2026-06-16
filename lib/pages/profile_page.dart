@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/video.dart';
 import '../providers/video_provider.dart';
 import '../services/interaction_service.dart';
-import '../widgets/video_item_list_sheet.dart';
+import '../utils/format.dart';
 import 'settings_page.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -73,12 +73,16 @@ class ProfilePage extends StatelessWidget {
             _SectionHeader(
               title: '我的收藏',
               count: favorites.length,
-              onTap: () => VideoItemListSheet.show(
+              onTap: () => Navigator.push(
                 context,
-                title: '我的收藏',
-                videos: favorites,
-                provider: provider,
-                onVideoSelected: onVideoSelected,
+                MaterialPageRoute(
+                  builder: (_) => _FullScreenVideoList(
+                    title: '我的收藏',
+                    videos: favorites,
+                    provider: provider,
+                    onVideoSelected: onVideoSelected,
+                  ),
+                ),
               ),
             ),
             if (favorites.isNotEmpty)
@@ -98,12 +102,16 @@ class ProfilePage extends StatelessWidget {
             _SectionHeader(
               title: '观看历史',
               count: historyVideos.length,
-              onTap: () => VideoItemListSheet.show(
+              onTap: () => Navigator.push(
                 context,
-                title: '观看历史',
-                videos: historyVideos,
-                provider: provider,
-                onVideoSelected: onVideoSelected,
+                MaterialPageRoute(
+                  builder: (_) => _FullScreenVideoList(
+                    title: '观看历史',
+                    videos: historyVideos,
+                    provider: provider,
+                    onVideoSelected: onVideoSelected,
+                  ),
+                ),
               ),
             ),
             if (historyVideos.isNotEmpty)
@@ -220,5 +228,69 @@ class _VideoThumbnail extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _FullScreenVideoList extends StatelessWidget {
+  final String title;
+  final List<VideoModel> videos;
+  final VideoProvider provider;
+  final void Function(int index)? onVideoSelected;
+
+  const _FullScreenVideoList({
+    required this.title,
+    required this.videos,
+    required this.provider,
+    this.onVideoSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: Text(title, style: const TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: videos.isEmpty
+          ? const Center(child: Text('暂无内容', style: TextStyle(color: Colors.white38)))
+          : ListView.builder(
+              itemCount: videos.length,
+              itemBuilder: (_, i) {
+                final v = videos[i];
+                return ListTile(
+                  leading: const Icon(Icons.play_circle_outline, color: Colors.white54),
+                  title: Text(
+                    v.title,
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(
+                    _buildSubtitle(v),
+                    style: const TextStyle(color: Colors.white38, fontSize: 12),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    final idx = provider.videos.indexWhere((pv) => pv.id == v.id);
+                    if (idx != -1) {
+                      onVideoSelected?.call(idx);
+                    }
+                  },
+                );
+              },
+            ),
+    );
+  }
+
+  String _buildSubtitle(VideoModel v) {
+    final parts = <String>[];
+    if (v.author.isNotEmpty) parts.add(v.author);
+    if (v.durationMs > 0) parts.add(formatDuration(v.duration));
+    if (v.resolution.isNotEmpty) parts.add(v.resolution);
+    return parts.join(' · ');
   }
 }
