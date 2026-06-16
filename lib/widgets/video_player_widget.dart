@@ -29,6 +29,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   bool _initialized = false;
   bool _hasError = false;
   bool _isPlaying = false;
+  bool _stopped = false;
   final ValueNotifier<Duration> _positionNotifier = ValueNotifier(Duration.zero);
   final ValueNotifier<Duration> _durationNotifier = ValueNotifier(Duration.zero);
   final List<HeartAnimation> _hearts = [];
@@ -61,6 +62,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     _hasError = false;
     _initialized = false;
     _isPlaying = false;
+    _stopped = false;
     _heartId = 0;
     _hearts.clear();
 
@@ -118,14 +120,27 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   void _updatePlayState() {
     if (!_initialized) return;
     if (widget.isActive) {
+      if (_stopped) {
+        _stopped = false;
+        _player.open(Media(widget.videoUrl));
+        _player.setPlaylistMode(PlaylistMode.loop);
+      }
       _player.play();
     } else {
-      _player.pause();
+      _player.stop();
+      _stopped = true;
     }
   }
 
   void _togglePlayPause() {
     if (!_initialized) return;
+    if (_stopped) {
+      _stopped = false;
+      _player.open(Media(widget.videoUrl));
+      _player.setPlaylistMode(PlaylistMode.loop);
+      _player.play();
+      return;
+    }
     if (_isPlaying) {
       _player.pause();
     } else {
