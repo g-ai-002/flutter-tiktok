@@ -25,6 +25,16 @@
 
 ## 版本历史
 
+### 0.7.3 (重构优化)
+- 提取 buildVideoSubtitle 为共享工具函数，消除4处重复代码
+- 提取 HeartAnimation 为独立组件
+- 提取 FullScreenVideoList 为独立组件
+- 修复静默异常吞噬，添加日志记录
+- 修复 video_source_service 潜在资源泄漏（player.dispose 放入 finally）
+- 修复 video_preload_service 不一致导入路径
+- 优化 video_player_widget 使用 ValueNotifier 减少重建
+- 添加测试 tearDown 隔离单例服务
+
 ### 0.7.2 (修复)
 - 去掉倍速、声音、全屏控制按钮和相关功能
 - 手机横屏后视频自动进入全屏播放模式
@@ -47,18 +57,9 @@
 - 视频列表支持按名称/时长/大小/导入时间排序
 - 视频列表、搜索、收藏、历史记录显示视频元数据
 
-### 0.6.3 (重构优化)
-- 提取 formatDuration 为共享工具函数
-- 提取 SpeedSheet 独立组件
-- 修复心形动画 ID 在视频切换时不重置的 Bug
-- 提取 CommentSheet 独立组件
-- 提取 VideoItemListSheet 共享组件，统一历史/收藏列表
-
-### 0.6.2 (修复)
-- 视频保持原比例填充容器，宽度或高度达到边界
-- 升级 media_kit 系列包修复 Android 构建兼容性
-
-### 0.6.1 及更早版本
+### 0.6.3 及更早版本
+- 0.6.3: 提取 formatDuration/SpeedSheet/CommentSheet/VideoItemListSheet 独立组件，修复心形动画 Bug
+- 0.6.2: 视频保持原比例填充容器，升级 media_kit 修复 Android 构建
 - 0.6.1: 移除预置网络视频，启动时引导用户导入本地视频
 - 0.6.0: 播放速度控制、设置页面、下拉刷新
 - 0.5.4: 修复中文数字格式解析 Bug、内存泄漏、组件拆分、搜索防抖

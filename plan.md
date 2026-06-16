@@ -172,3 +172,16 @@
 - [x] 搜索界面搜索内容垂直居中
 - [x] 浅色模式切换后整个 app 界面变成白底浅色
 - [x] 修复状态栏经常自动消失的问题
+
+### 0.7.3 (PATCH) - 重构优化
+- [x] 提取 _buildSubtitle 为共享工具函数（4处重复）
+- [x] 提取 _HeartAnimation 为独立组件
+- [x] 提取 _FullScreenVideoList 为独立组件
+- [x] 修复静默异常吞噬，添加日志记录
+- [x] 修复 video_source_service.dart 潜在资源泄漏
+- [x] 修复 video_preload_service.dart 不一致导入
+- [x] 优化 home_page.dart _onPageChanged URL 列表创建
+- [x] 优化 video_player_widget.dart setState 频率
+- [x] 添加测试 tearDown 隔离单例服务
+- [x] 代码审查与清理
+- [x] 更新测试用例
