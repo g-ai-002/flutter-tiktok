@@ -13,6 +13,7 @@ class VideoModel {
   final String resolution;
   final int fileSize;
   final String importTime;
+  String? categoryId;
 
   VideoModel({
     required this.id,
@@ -29,6 +30,7 @@ class VideoModel {
     this.resolution = '',
     this.fileSize = 0,
     String? importTime,
+    this.categoryId,
   }) : importTime = importTime ?? DateTime.now().toIso8601String();
 
   Duration get duration => Duration(milliseconds: durationMs);
@@ -56,6 +58,7 @@ class VideoModel {
         'resolution': resolution,
         'fileSize': fileSize,
         'importTime': importTime,
+        'categoryId': categoryId,
       };
 
   factory VideoModel.fromJson(Map<String, dynamic> json) {
@@ -74,6 +77,7 @@ class VideoModel {
       resolution: json['resolution'] as String? ?? '',
       fileSize: json['fileSize'] as int? ?? 0,
       importTime: json['importTime'] as String?,
+      categoryId: json['categoryId'] as String?,
     );
   }
 }

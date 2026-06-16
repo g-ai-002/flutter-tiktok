@@ -14,6 +14,7 @@ import 'providers/theme_provider.dart';
 import 'services/interaction_service.dart';
 import 'services/log_service.dart';
 import 'services/storage_service.dart';
+import 'services/category_service.dart';
 import 'theme/app_theme.dart';
 import 'utils/constants.dart';
 
@@ -40,6 +41,7 @@ Future<void> main() async {
   final storage = await StorageService.instance;
   await LogService.init();
   await InteractionService.instance.init();
+  await CategoryService.instance.init();
   LogService.info('应用启动: ${AppConstants.appName} v${AppConstants.version}');
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
