@@ -5,6 +5,10 @@ void main() {
   group('InteractionService', () {
     final service = InteractionService.instance;
 
+    tearDown(() {
+      service.reset();
+    });
+
     test('addComment and getComments', () {
       service.addComment('v_test_1', '好视频');
       service.addComment('v_test_1', '不错');

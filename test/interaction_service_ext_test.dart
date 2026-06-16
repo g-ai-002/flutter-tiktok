@@ -5,6 +5,10 @@ void main() {
   group('InteractionService - 新增功能', () {
     final service = InteractionService.instance;
 
+    tearDown(() {
+      service.reset();
+    });
+
     test('favorites 返回不可变列表', () {
       service.toggleFavorite('v_fav_list_test');
       final favs = service.favorites;

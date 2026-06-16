@@ -5,6 +5,10 @@ void main() {
   group('VideoPreloadService', () {
     final service = VideoPreloadService.instance;
 
+    tearDown(() {
+      service.reset();
+    });
+
     test('preload with invalid url does not throw', () {
       expect(() => service.preload('not_a_valid_url_!@#'), returnsNormally);
     });

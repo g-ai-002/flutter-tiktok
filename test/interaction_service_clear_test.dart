@@ -5,6 +5,10 @@ void main() {
   group('InteractionService - 新增功能', () {
     final service = InteractionService.instance;
 
+    tearDown(() {
+      service.reset();
+    });
+
     test('clearHistory 清除所有历史记录', () {
       service.addToHistory('v_h1');
       service.addToHistory('v_h2');

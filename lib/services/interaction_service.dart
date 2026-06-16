@@ -81,6 +81,14 @@ class InteractionService {
     LogService.info('清除观看历史');
   }
 
+  void reset() {
+    _comments.clear();
+    _favorites.clear();
+    _history.clear();
+    _saveTimer?.cancel();
+    _dirty = false;
+  }
+
   // 持久化
   Future<void> _saveJson(String filename, dynamic data) async {
     try {
