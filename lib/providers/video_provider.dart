@@ -3,6 +3,7 @@ import '../models/video.dart';
 import '../services/storage_service.dart';
 import '../services/log_service.dart';
 import '../services/video_source_service.dart';
+import '../services/category_service.dart';
 
 enum VideoSortMode { importTime, name, duration, fileSize }
 
@@ -13,18 +14,25 @@ class VideoProvider extends ChangeNotifier {
   bool _isLoading = false;
   VideoSortMode _sortMode = VideoSortMode.importTime;
   bool _sortAscending = false;
+  bool _autoPlay = true;
+  String? _categoryFilter;
 
   VideoProvider(this._storage) {
     _loadVideos();
   }
 
-  List<VideoModel> get videos => _videos;
+  List<VideoModel> get videos => _categoryFilter != null
+      ? _videos.where((v) => v.categoryId == _categoryFilter).toList()
+      : _videos;
+  List<VideoModel> get allVideos => _videos;
   int get currentIndex => _currentIndex;
   bool get isLoading => _isLoading;
   VideoSortMode get sortMode => _sortMode;
   bool get sortAscending => _sortAscending;
+  bool get autoPlay => _autoPlay;
+  String? get categoryFilter => _categoryFilter;
   VideoModel? get currentVideo =>
-      _videos.isNotEmpty && _currentIndex < _videos.length ? _videos[_currentIndex] : null;
+      videos.isNotEmpty && _currentIndex < videos.length ? videos[_currentIndex] : null;
 
   List<VideoModel> getVideosByIds(List<String> ids) {
     final idSet = ids.toSet();
@@ -69,6 +77,7 @@ class VideoProvider extends ChangeNotifier {
       _videos = saved;
       for (final v in _videos) {
         v.isLiked = likedIds.contains(v.id);
+        v.categoryId = CategoryService.instance.getCategoryId(v.id);
       }
       _sortVideos();
       LogService.info('加载了 ${_videos.length} 个视频');
@@ -151,6 +160,73 @@ class VideoProvider extends ChangeNotifier {
       return '${wan.toStringAsFixed(1)}万';
     }
     return '$count';
+  }
+
+  void setAutoPlay(bool value) {
+    _autoPlay = value;
+    notifyListeners();
+  }
+
+  void setCategoryFilter(String? categoryId) {
+    _categoryFilter = categoryId;
+    _currentIndex = 0;
+    notifyListeners();
+  }
+
+  void updateVideoInfo(String videoId, {String? title, String? description}) {
+    final index = _videos.indexWhere((v) => v.id == videoId);
+    if (index == -1) return;
+    final video = _videos[index];
+    final updated = VideoModel(
+      id: video.id,
+      title: title ?? video.title,
+      author: video.author,
+      description: description ?? video.description,
+      url: video.url,
+      thumbnail: video.thumbnail,
+      likes: video.likes,
+      comments: video.comments,
+      shares: video.shares,
+      isLiked: video.isLiked,
+      durationMs: video.durationMs,
+      resolution: video.resolution,
+      fileSize: video.fileSize,
+      importTime: video.importTime,
+      categoryId: video.categoryId,
+    );
+    _videos[index] = updated;
+    VideoSourceService.instance.saveVideos(_videos);
+    notifyListeners();
+    LogService.info('更新视频信息: $videoId');
+  }
+
+  void setVideoCategory(String videoId, String? categoryId) {
+    CategoryService.instance.setVideoCategory(videoId, categoryId);
+    final index = _videos.indexWhere((v) => v.id == videoId);
+    if (index != -1) {
+      _videos[index].categoryId = categoryId;
+      notifyListeners();
+    }
+  }
+
+  Future<void> batchDelete(List<String> videoIds) async {
+    _videos.removeWhere((v) => videoIds.contains(v.id));
+    if (_currentIndex >= _videos.length) {
+      _currentIndex = _videos.isNotEmpty ? _videos.length - 1 : 0;
+    }
+    await VideoSourceService.instance.saveVideos(_videos);
+    notifyListeners();
+    LogService.info('批量删除 ${videoIds.length} 个视频');
+  }
+
+  void batchSetCategory(List<String> videoIds, String? categoryId) {
+    CategoryService.instance.batchSetCategory(videoIds, categoryId);
+    for (final v in _videos) {
+      if (videoIds.contains(v.id)) {
+        v.categoryId = categoryId;
+      }
+    }
+    notifyListeners();
   }
 
   Future<void> refreshVideos() async {
