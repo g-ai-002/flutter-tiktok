@@ -61,46 +61,50 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Consumer<VideoProvider>(
       builder: (context, provider, _) {
-        return Scaffold(
-          backgroundColor: Colors.black,
-          appBar: AppBar(
+        return GestureDetector(
+          onTap: () => _focusNode.unfocus(),
+          child: Scaffold(
             backgroundColor: Colors.black,
-            elevation: 0,
-            title: Container(
-              height: 36,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: TextField(
-                controller: _controller,
-                focusNode: _focusNode,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-                cursorColor: const Color(0xFFFE2C55),
-                decoration: InputDecoration(
-                  hintText: '搜索视频标题或作者',
-                  hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 14),
-                  prefixIcon: const Icon(Icons.search, color: Colors.white54, size: 20),
-                  suffixIcon: _controller.text.isNotEmpty
-                      ? GestureDetector(
-                          onTap: () {
-                            _controller.clear();
-                            _search('', provider.videos);
-                          },
-                          child: const Icon(Icons.close, color: Colors.white54, size: 18),
-                        )
-                      : null,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
+            appBar: AppBar(
+              backgroundColor: Colors.black,
+              elevation: 0,
+              title: Container(
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(18),
                 ),
-                onChanged: (v) {
-                  _search(v, provider.videos);
-                  setState(() {});
-                },
+                child: TextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  cursorColor: const Color(0xFFFE2C55),
+                  textAlignVertical: TextAlignVertical.center,
+                  decoration: InputDecoration(
+                    hintText: '搜索视频标题或作者',
+                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 14),
+                    prefixIcon: const Icon(Icons.search, color: Colors.white54, size: 20),
+                    suffixIcon: _controller.text.isNotEmpty
+                        ? GestureDetector(
+                            onTap: () {
+                              _controller.clear();
+                              _search('', provider.videos);
+                            },
+                            child: const Icon(Icons.close, color: Colors.white54, size: 18),
+                          )
+                        : null,
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                  ),
+                  onChanged: (v) {
+                    _search(v, provider.videos);
+                    setState(() {});
+                  },
+                ),
               ),
             ),
+            body: _buildBody(provider),
           ),
-          body: _buildBody(provider),
         );
       },
     );
