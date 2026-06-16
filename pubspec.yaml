@@ -1,7 +1,7 @@
 name: flutter_tiktok
 description: 仿抖音竖屏滑动浏览播放视频App
 publish_to: 'none'
-version: 0.7.4
+version: 0.8.0
 
 environment:
   sdk: '>=3.10.0 <4.0.0'
@@ -20,6 +20,7 @@ dependencies:
   media_kit_libs_video: 1.0.7
   window_manager: 0.5.1
   file_picker: 10.3.7
+  share_plus: 10.1.4
 
 dev_dependencies:
   flutter_test:
