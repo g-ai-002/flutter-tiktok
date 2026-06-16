@@ -11,12 +11,14 @@ class VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
   final bool isActive;
   final VoidCallback? onDoubleTap;
+  final VoidCallback? onToggleFullscreen;
 
   const VideoPlayerWidget({
     super.key,
     required this.videoUrl,
     required this.isActive,
     this.onDoubleTap,
+    this.onToggleFullscreen,
   });
 
   @override
@@ -29,6 +31,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   bool _initialized = false;
   bool _hasError = false;
   bool _isMuted = false;
+  bool _isPlaying = false;
   double _speed = 1.0;
   final List<_HeartAnimation> _hearts = [];
   StreamSubscription? _playingSub;
@@ -59,6 +62,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   void _initPlayer() {
     _hasError = false;
     _initialized = false;
+    _isPlaying = false;
     _heartId = 0;
     _hearts.clear();
 
@@ -84,8 +88,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     }
 
     _player.setPlaylistMode(PlaylistMode.loop);
-    _playingSub = _player.stream.playing.listen((_) {
-      if (mounted) setState(() {});
+    _playingSub = _player.stream.playing.listen((isPlaying) {
+      if (mounted) setState(() => _isPlaying = isPlaying);
     });
     _completedSub = _player.stream.completed.listen((_) {
       if (mounted) setState(() => _initialized = true);
@@ -115,9 +119,9 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   void _updatePlayState() {
     if (!_initialized) return;
-    if (widget.isActive) {
+    if (widget.isActive && !_isPlaying) {
       _player.play();
-    } else {
+    } else if (!widget.isActive && _isPlaying) {
       _player.pause();
     }
   }
@@ -136,13 +140,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   void _togglePlayPause() {
     if (!_initialized) return;
-    setState(() {
-      if (_player.state.playing) {
-        _player.pause();
-      } else {
-        _player.play();
-      }
-    });
+    if (_isPlaying) {
+      _player.pause();
+    } else {
+      _player.play();
+    }
   }
 
   void _onDoubleTapDown(TapDownDetails details) {
@@ -200,20 +202,23 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         : 0.0;
 
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTap: _togglePlayPause,
       onDoubleTapDown: _onDoubleTapDown,
       onDoubleTap: () {},
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Video(
-            controller: _videoController,
-            fit: BoxFit.contain,
-            width: double.infinity,
-            height: double.infinity,
+          IgnorePointer(
+            child: Video(
+              controller: _videoController,
+              fit: BoxFit.contain,
+              width: double.infinity,
+              height: double.infinity,
+            ),
           ),
           ..._hearts.map((h) => h),
-          if (!_player.state.playing)
+          if (!_isPlaying)
             const Center(
               child: Icon(Icons.play_arrow, color: Colors.white70, size: 64),
             ),
@@ -251,6 +256,21 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                   color: Colors.white70,
                   size: 24,
                 ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 12,
+            top: MediaQuery.of(context).size.height * 0.50,
+            child: GestureDetector(
+              onTap: widget.onToggleFullscreen,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black38,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(Icons.fullscreen, color: Colors.white70, size: 24),
               ),
             ),
           ),
