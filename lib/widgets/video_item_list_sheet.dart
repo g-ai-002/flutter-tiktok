@@ -78,7 +78,7 @@ class VideoItemListSheet extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         subtitle: Text(
-                          _buildSubtitle(v),
+                          buildVideoSubtitle(v),
                           style: TextStyle(color: subColor, fontSize: 12),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -97,13 +97,5 @@ class VideoItemListSheet extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _buildSubtitle(VideoModel v) {
-    final parts = <String>[];
-    if (v.author.isNotEmpty) parts.add(v.author);
-    if (v.durationMs > 0) parts.add(formatDuration(v.duration));
-    if (v.resolution.isNotEmpty) parts.add(v.resolution);
-    return parts.join(' · ');
   }
 }

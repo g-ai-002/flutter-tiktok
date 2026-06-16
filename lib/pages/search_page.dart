@@ -144,7 +144,7 @@ class _SearchPageState extends State<SearchPage> {
             overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
-            _buildSubtitle(video),
+            buildVideoSubtitle(video),
             style: TextStyle(color: textColor, fontSize: 12),
           ),
           trailing: Text(
@@ -160,13 +160,5 @@ class _SearchPageState extends State<SearchPage> {
         );
       },
     );
-  }
-
-  String _buildSubtitle(VideoModel v) {
-    final parts = <String>[];
-    if (v.author.isNotEmpty) parts.add(v.author);
-    if (v.durationMs > 0) parts.add(formatDuration(v.duration));
-    if (v.resolution.isNotEmpty) parts.add(v.resolution);
-    return parts.join(' · ');
   }
 }

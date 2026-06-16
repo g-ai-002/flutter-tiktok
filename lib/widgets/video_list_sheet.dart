@@ -184,7 +184,7 @@ class _VideoTile extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
-        _buildSubtitle(),
+        buildVideoSubtitle(video, includeFileSize: true),
         style: TextStyle(color: subTextColor, fontSize: 12),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -196,14 +196,5 @@ class _VideoTile extends StatelessWidget {
             )
           : null,
     );
-  }
-
-  String _buildSubtitle() {
-    final parts = <String>[];
-    if (video.author.isNotEmpty) parts.add(video.author);
-    if (video.durationMs > 0) parts.add(formatDuration(video.duration));
-    if (video.resolution.isNotEmpty) parts.add(video.resolution);
-    if (video.fileSize > 0) parts.add(video.fileSizeFormatted);
-    return parts.join(' · ');
   }
 }
