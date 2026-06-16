@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/theme_provider.dart';
 import '../services/interaction_service.dart';
 import '../services/video_preload_service.dart';
 import '../utils/constants.dart';
@@ -8,6 +10,7 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -17,6 +20,18 @@ class SettingsPage extends StatelessWidget {
       ),
       body: ListView(
         children: [
+          const _SectionHeader(title: '外观'),
+          SwitchListTile(
+            secondary: Icon(
+              themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+              color: Colors.white70,
+            ),
+            title: const Text('深色模式', style: TextStyle(color: Colors.white)),
+            value: themeProvider.isDarkMode,
+            activeColor: const Color(0xFFFE2C55),
+            onChanged: (_) => themeProvider.toggleTheme(),
+          ),
+          const Divider(color: Colors.white12),
           const _SectionHeader(title: '数据管理'),
           ListTile(
             leading: const Icon(Icons.delete_outline, color: Colors.white70),

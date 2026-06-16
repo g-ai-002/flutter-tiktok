@@ -10,6 +10,7 @@ import 'pages/home_page.dart';
 import 'pages/search_page.dart';
 import 'pages/profile_page.dart';
 import 'providers/video_provider.dart';
+import 'providers/theme_provider.dart';
 import 'services/interaction_service.dart';
 import 'services/log_service.dart';
 import 'services/storage_service.dart';
@@ -59,22 +60,29 @@ class TiktokApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fontFamily = Platform.isWindows ? 'Microsoft YaHei UI' : null;
-    return ChangeNotifierProvider(
-      create: (_) => VideoProvider(storage),
-      child: MaterialApp(
-        title: AppConstants.appName,
-        debugShowCheckedModeBanner: false,
-        theme: buildLightTheme(fontFamily: fontFamily),
-        darkTheme: buildDarkTheme(fontFamily: fontFamily),
-        themeMode: ThemeMode.dark,
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [Locale('zh', 'CN')],
-        locale: const Locale('zh', 'CN'),
-        home: const MainShell(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => VideoProvider(storage)),
+        ChangeNotifierProvider(create: (_) => ThemeProvider(storage)),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          return MaterialApp(
+            title: AppConstants.appName,
+            debugShowCheckedModeBanner: false,
+            theme: buildLightTheme(fontFamily: fontFamily),
+            darkTheme: buildDarkTheme(fontFamily: fontFamily),
+            themeMode: themeProvider.themeMode,
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('zh', 'CN')],
+            locale: const Locale('zh', 'CN'),
+            home: const MainShell(),
+          );
+        },
       ),
     );
   }
