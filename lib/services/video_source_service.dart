@@ -55,10 +55,13 @@ class VideoSourceService {
       if (await file.exists()) {
         result['fileSize'] = await file.length();
       }
-    } catch (_) {}
+    } catch (e) {
+      LogService.error('获取文件大小失败: $filePath', e);
+    }
 
+    Player? player;
     try {
-      final player = Player();
+      player = Player();
       final completer = Completer<void>();
       Timer? timeout;
 
@@ -92,9 +95,10 @@ class VideoSourceService {
       });
 
       await completer.future;
-      player.dispose();
     } catch (e) {
       LogService.error('提取视频元数据失败: $filePath', e);
+    } finally {
+      player?.dispose();
     }
 
     return result;

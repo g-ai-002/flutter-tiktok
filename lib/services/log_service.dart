@@ -45,7 +45,9 @@ class LogService {
     if (_buffer.length > _maxBufferLines) _buffer.removeAt(0);
     try {
       _logFile?.writeAsString('$line\n', mode: FileMode.append);
-    } catch (_) {}
+    } catch (e) {
+      // 日志写入失败时静默处理，避免循环调用
+    }
   }
 
 }
