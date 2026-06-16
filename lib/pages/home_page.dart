@@ -36,34 +36,40 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? Colors.black : Colors.white;
+    final emptyIconColor = isDark ? Colors.white24 : Colors.black12;
+    final emptyTextColor = isDark ? Colors.white54 : Colors.black54;
+    final emptySubColor = isDark ? Colors.white30 : Colors.black26;
+
     return Consumer<VideoProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading) {
-          return const Scaffold(
-            backgroundColor: Colors.black,
+          return Scaffold(
+            backgroundColor: bgColor,
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
         if (provider.videos.isEmpty) {
           return Scaffold(
-            backgroundColor: Colors.black,
+            backgroundColor: bgColor,
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.video_library_outlined, color: Colors.white24, size: 64),
+                    Icon(Icons.video_library_outlined, color: emptyIconColor, size: 64),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       '还没有视频',
-                      style: TextStyle(color: Colors.white54, fontSize: 18),
+                      style: TextStyle(color: emptyTextColor, fontSize: 18),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       '点击下方按钮导入本地视频开始浏览',
-                      style: TextStyle(color: Colors.white30, fontSize: 14),
+                      style: TextStyle(color: emptySubColor, fontSize: 14),
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
@@ -84,12 +90,12 @@ class _HomePageState extends State<HomePage> {
         }
 
         return Scaffold(
-          backgroundColor: Colors.black,
+          backgroundColor: bgColor,
           body: Stack(
             children: [
               RefreshIndicator(
                 color: const Color(0xFFFE2C55),
-                backgroundColor: const Color(0xFF1A1A1A),
+                backgroundColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
                 onRefresh: _refreshVideos,
                 child: PageView.builder(
                   controller: widget.pageController,
@@ -137,9 +143,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showVideoList(BuildContext context, VideoProvider provider) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),

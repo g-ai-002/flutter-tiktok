@@ -5,20 +5,17 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import '../services/log_service.dart';
 import '../utils/format.dart';
-import 'speed_sheet.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
   final bool isActive;
   final VoidCallback? onDoubleTap;
-  final VoidCallback? onToggleFullscreen;
 
   const VideoPlayerWidget({
     super.key,
     required this.videoUrl,
     required this.isActive,
     this.onDoubleTap,
-    this.onToggleFullscreen,
   });
 
   @override
@@ -30,9 +27,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   late final VideoController _videoController;
   bool _initialized = false;
   bool _hasError = false;
-  bool _isMuted = false;
   bool _isPlaying = false;
-  double _speed = 1.0;
   final List<_HeartAnimation> _hearts = [];
   StreamSubscription? _playingSub;
   StreamSubscription? _completedSub;
@@ -119,23 +114,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   void _updatePlayState() {
     if (!_initialized) return;
-    if (widget.isActive && !_isPlaying) {
+    if (widget.isActive) {
       _player.play();
-    } else if (!widget.isActive && _isPlaying) {
+    } else {
       _player.pause();
     }
-  }
-
-  void _toggleMute() {
-    setState(() {
-      _isMuted = !_isMuted;
-      _player.setVolume(_isMuted ? 0 : 100);
-    });
-  }
-
-  void _setSpeed(double speed) {
-    setState(() => _speed = speed);
-    _player.setRate(speed);
   }
 
   void _togglePlayPause() {
@@ -222,58 +205,6 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
             const Center(
               child: Icon(Icons.play_arrow, color: Colors.white70, size: 64),
             ),
-          Positioned(
-            right: 12,
-            top: MediaQuery.of(context).size.height * 0.40,
-            child: GestureDetector(
-              onTap: () => SpeedSheet.show(context, _speed, _setSpeed),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.black38,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  _speed == 1.0 ? '倍速' : '${_speed}x',
-                  style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 12,
-            top: MediaQuery.of(context).size.height * 0.45,
-            child: GestureDetector(
-              onTap: _toggleMute,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black38,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Icon(
-                  _isMuted ? Icons.volume_off : Icons.volume_up,
-                  color: Colors.white70,
-                  size: 24,
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 12,
-            top: MediaQuery.of(context).size.height * 0.50,
-            child: GestureDetector(
-              onTap: widget.onToggleFullscreen,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black38,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Icon(Icons.fullscreen, color: Colors.white70, size: 24),
-              ),
-            ),
-          ),
           Positioned(
             left: 0,
             right: 0,

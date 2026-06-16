@@ -11,31 +11,38 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? Colors.black : Colors.white;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final subColor = isDark ? Colors.white70 : Colors.black54;
+    final subTextColor = isDark ? Colors.white38 : Colors.black38;
+    final dividerColor = isDark ? Colors.white12 : Colors.black12;
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: bgColor,
       appBar: AppBar(
-        title: const Text('设置', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text('设置', style: TextStyle(color: textColor)),
+        backgroundColor: bgColor,
+        iconTheme: IconThemeData(color: textColor),
       ),
       body: ListView(
         children: [
-          const _SectionHeader(title: '外观'),
+          _SectionHeader(title: '外观', textColor: subTextColor),
           SwitchListTile(
             secondary: Icon(
               themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
-              color: Colors.white70,
+              color: subColor,
             ),
-            title: const Text('深色模式', style: TextStyle(color: Colors.white)),
+            title: Text('深色模式', style: TextStyle(color: textColor)),
             value: themeProvider.isDarkMode,
             activeColor: const Color(0xFFFE2C55),
             onChanged: (_) => themeProvider.toggleTheme(),
           ),
-          const Divider(color: Colors.white12),
-          const _SectionHeader(title: '数据管理'),
+          Divider(color: dividerColor),
+          _SectionHeader(title: '数据管理', textColor: subTextColor),
           ListTile(
-            leading: const Icon(Icons.delete_outline, color: Colors.white70),
-            title: const Text('清除观看历史', style: TextStyle(color: Colors.white)),
+            leading: Icon(Icons.delete_outline, color: subColor),
+            title: Text('清除观看历史', style: TextStyle(color: textColor)),
             onTap: () => _showConfirmDialog(context, '确定要清除所有观看历史吗？', () {
               InteractionService.instance.clearHistory();
               if (context.mounted) {
@@ -46,8 +53,8 @@ class SettingsPage extends StatelessWidget {
             }),
           ),
           ListTile(
-            leading: const Icon(Icons.cached, color: Colors.white70),
-            title: const Text('清除视频缓存', style: TextStyle(color: Colors.white)),
+            leading: Icon(Icons.cached, color: subColor),
+            title: Text('清除视频缓存', style: TextStyle(color: textColor)),
             onTap: () => _showConfirmDialog(context, '确定要清除视频预加载缓存吗？', () {
               VideoPreloadService.instance.clear();
               if (context.mounted) {
@@ -57,17 +64,17 @@ class SettingsPage extends StatelessWidget {
               }
             }),
           ),
-          const Divider(color: Colors.white12),
-          const _SectionHeader(title: '关于'),
+          Divider(color: dividerColor),
+          _SectionHeader(title: '关于', textColor: subTextColor),
           ListTile(
-            leading: const Icon(Icons.info_outline, color: Colors.white70),
-            title: const Text('应用名称', style: TextStyle(color: Colors.white)),
-            trailing: const Text(AppConstants.appName, style: TextStyle(color: Colors.white38)),
+            leading: Icon(Icons.info_outline, color: subColor),
+            title: Text('应用名称', style: TextStyle(color: textColor)),
+            trailing: Text(AppConstants.appName, style: TextStyle(color: subTextColor)),
           ),
           ListTile(
-            leading: const Icon(Icons.tag, color: Colors.white70),
-            title: const Text('版本号', style: TextStyle(color: Colors.white)),
-            trailing: Text('v${AppConstants.version}', style: const TextStyle(color: Colors.white38)),
+            leading: Icon(Icons.tag, color: subColor),
+            title: Text('版本号', style: TextStyle(color: textColor)),
+            trailing: Text('v${AppConstants.version}', style: TextStyle(color: subTextColor)),
           ),
         ],
       ),
@@ -75,16 +82,17 @@ class SettingsPage extends StatelessWidget {
   }
 
   void _showConfirmDialog(BuildContext context, String message, VoidCallback onConfirm) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1A1A),
-        title: const Text('确认', style: TextStyle(color: Colors.white)),
-        content: Text(message, style: const TextStyle(color: Colors.white70)),
+        backgroundColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+        title: Text('确认', style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
+        content: Text(message, style: TextStyle(color: isDark ? Colors.white70 : Colors.black54)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('取消', style: TextStyle(color: Colors.white54)),
+            child: Text('取消', style: TextStyle(color: isDark ? Colors.white54 : Colors.black54)),
           ),
           TextButton(
             onPressed: () {
@@ -101,7 +109,8 @@ class SettingsPage extends StatelessWidget {
 
 class _SectionHeader extends StatelessWidget {
   final String title;
-  const _SectionHeader({required this.title});
+  final Color textColor;
+  const _SectionHeader({required this.title, required this.textColor});
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +118,7 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
       child: Text(
         title,
-        style: const TextStyle(color: Colors.white38, fontSize: 13, fontWeight: FontWeight.w500),
+        style: TextStyle(color: textColor, fontSize: 13, fontWeight: FontWeight.w500),
       ),
     );
   }

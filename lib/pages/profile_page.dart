@@ -15,6 +15,11 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final interaction = InteractionService.instance;
     final provider = context.watch<VideoProvider>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? Colors.black : Colors.white;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final subColor = isDark ? Colors.white54 : Colors.black54;
+    final subTextColor = isDark ? Colors.white38 : Colors.black38;
 
     final favorites = provider.getVideosByIds(interaction.favorites);
 
@@ -24,15 +29,15 @@ class ProfilePage extends StatelessWidget {
     final totalLikes = provider.videos.where((v) => v.isLiked).length;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: bgColor,
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: bgColor,
         elevation: 0,
-        title: const Text('个人主页', style: TextStyle(color: Colors.white, fontSize: 18)),
+        title: Text('个人主页', style: TextStyle(color: textColor, fontSize: 18)),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Colors.white70),
+            icon: Icon(Icons.settings_outlined, color: subColor),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const SettingsPage()),
@@ -53,8 +58,8 @@ class ProfilePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            const Center(
-              child: Text('抖视频用户', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
+            Center(
+              child: Text('抖视频用户', style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.w600)),
             ),
             const SizedBox(height: 24),
             Padding(
@@ -62,10 +67,10 @@ class ProfilePage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _StatItem(label: '收藏', value: '${favorites.length}'),
-                  _StatItem(label: '历史', value: '${historyVideos.length}'),
-                  _StatItem(label: '点赞', value: '$totalLikes'),
-                  _StatItem(label: '评论', value: '$totalComments'),
+                  _StatItem(label: '收藏', value: '${favorites.length}', textColor: textColor, subColor: subColor),
+                  _StatItem(label: '历史', value: '${historyVideos.length}', textColor: textColor, subColor: subColor),
+                  _StatItem(label: '点赞', value: '$totalLikes', textColor: textColor, subColor: subColor),
+                  _StatItem(label: '评论', value: '$totalComments', textColor: textColor, subColor: subColor),
                 ],
               ),
             ),
@@ -73,6 +78,8 @@ class ProfilePage extends StatelessWidget {
             _SectionHeader(
               title: '我的收藏',
               count: favorites.length,
+              textColor: textColor,
+              subTextColor: subTextColor,
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -102,6 +109,8 @@ class ProfilePage extends StatelessWidget {
             _SectionHeader(
               title: '观看历史',
               count: historyVideos.length,
+              textColor: textColor,
+              subTextColor: subTextColor,
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -145,15 +154,17 @@ class ProfilePage extends StatelessWidget {
 class _StatItem extends StatelessWidget {
   final String label;
   final String value;
-  const _StatItem({required this.label, required this.value});
+  final Color textColor;
+  final Color subColor;
+  const _StatItem({required this.label, required this.value, required this.textColor, required this.subColor});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
+        Text(value, style: TextStyle(color: textColor, fontSize: 20, fontWeight: FontWeight.w700)),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+        Text(label, style: TextStyle(color: subColor, fontSize: 12)),
       ],
     );
   }
@@ -162,9 +173,11 @@ class _StatItem extends StatelessWidget {
 class _SectionHeader extends StatelessWidget {
   final String title;
   final int count;
+  final Color textColor;
+  final Color subTextColor;
   final VoidCallback onTap;
 
-  const _SectionHeader({required this.title, required this.count, required this.onTap});
+  const _SectionHeader({required this.title, required this.count, required this.textColor, required this.subTextColor, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -172,17 +185,17 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Row(
         children: [
-          Text(title, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+          Text(title, style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(width: 8),
-          Text('$count', style: const TextStyle(color: Colors.white38, fontSize: 13)),
+          Text('$count', style: TextStyle(color: subTextColor, fontSize: 13)),
           const Spacer(),
           GestureDetector(
             onTap: onTap,
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('查看全部', style: TextStyle(color: Colors.white38, fontSize: 13)),
-                Icon(Icons.chevron_right, color: Colors.white38, size: 18),
+                Text('查看全部', style: TextStyle(color: subTextColor, fontSize: 13)),
+                Icon(Icons.chevron_right, color: subTextColor, size: 18),
               ],
             ),
           ),
@@ -246,30 +259,36 @@ class _FullScreenVideoList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? Colors.black : Colors.white;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final subColor = isDark ? Colors.white38 : Colors.black38;
+    final iconColor = isDark ? Colors.white54 : Colors.black38;
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: bgColor,
       appBar: AppBar(
-        title: Text(title, style: const TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(title, style: TextStyle(color: textColor)),
+        backgroundColor: bgColor,
+        iconTheme: IconThemeData(color: textColor),
       ),
       body: videos.isEmpty
-          ? const Center(child: Text('暂无内容', style: TextStyle(color: Colors.white38)))
+          ? Center(child: Text('暂无内容', style: TextStyle(color: subColor)))
           : ListView.builder(
               itemCount: videos.length,
               itemBuilder: (_, i) {
                 final v = videos[i];
                 return ListTile(
-                  leading: const Icon(Icons.play_circle_outline, color: Colors.white54),
+                  leading: Icon(Icons.play_circle_outline, color: iconColor),
                   title: Text(
                     v.title,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    style: TextStyle(color: textColor, fontSize: 14),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   subtitle: Text(
                     _buildSubtitle(v),
-                    style: const TextStyle(color: Colors.white38, fontSize: 12),
+                    style: TextStyle(color: subColor, fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

@@ -24,9 +24,10 @@ class VideoItemListSheet extends StatelessWidget {
     required VideoProvider provider,
     void Function(int index)? onVideoSelected,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: isDark ? const Color(0xFF1A1A1A) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -41,6 +42,11 @@ class VideoItemListSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final subColor = isDark ? Colors.white38 : Colors.black38;
+    final iconColor = isDark ? Colors.white54 : Colors.black38;
+
     return SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -50,30 +56,30 @@ class VideoItemListSheet extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Text(
               title,
-              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+              style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.w600),
             ),
           ),
           Flexible(
             child: videos.isEmpty
-                ? const Padding(
-                    padding: EdgeInsets.all(32),
-                    child: Center(child: Text('暂无内容', style: TextStyle(color: Colors.white38))),
+                ? Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Center(child: Text('暂无内容', style: TextStyle(color: subColor))),
                   )
                 : ListView.builder(
                     itemCount: videos.length,
                     itemBuilder: (_, i) {
                       final v = videos[i];
                       return ListTile(
-                        leading: const Icon(Icons.play_circle_outline, color: Colors.white54),
+                        leading: Icon(Icons.play_circle_outline, color: iconColor),
                         title: Text(
                           v.title,
-                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                          style: TextStyle(color: textColor, fontSize: 14),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         subtitle: Text(
                           _buildSubtitle(v),
-                          style: const TextStyle(color: Colors.white38, fontSize: 12),
+                          style: TextStyle(color: subColor, fontSize: 12),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),

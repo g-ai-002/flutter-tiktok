@@ -13,9 +13,14 @@ class CommentSheet extends StatefulWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? const Color(0xFF1A1A1A)
+          : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.5,
       ),
       builder: (_) => CommentSheet(video: video),
     );
@@ -38,6 +43,11 @@ class _CommentSheetState extends State<CommentSheet> {
   Widget build(BuildContext context) {
     final interaction = InteractionService.instance;
     final comments = interaction.getComments(widget.video.id);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final subColor = isDark ? Colors.white70 : Colors.black54;
+    final hintColor = isDark ? Colors.white38 : Colors.black38;
+    final dividerColor = isDark ? Colors.white12 : Colors.black12;
 
     return SafeArea(
       child: Padding(
@@ -46,19 +56,19 @@ class _CommentSheetState extends State<CommentSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text(
                 '评论',
-                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.w600),
               ),
             ),
             Flexible(
               child: comments.isEmpty
-                  ? const Padding(
-                      padding: EdgeInsets.all(32),
+                  ? Padding(
+                      padding: const EdgeInsets.all(32),
                       child: Center(
-                        child: Text('暂无评论', style: TextStyle(color: Colors.white38)),
+                        child: Text('暂无评论', style: TextStyle(color: hintColor)),
                       ),
                     )
                   : ListView.builder(
@@ -71,13 +81,13 @@ class _CommentSheetState extends State<CommentSheet> {
                             radius: 16,
                             child: Icon(Icons.person, size: 18),
                           ),
-                          title: Text(c.author, style: const TextStyle(color: Colors.white, fontSize: 13)),
-                          subtitle: Text(c.content, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                          title: Text(c.author, style: TextStyle(color: textColor, fontSize: 13)),
+                          subtitle: Text(c.content, style: TextStyle(color: subColor, fontSize: 14)),
                         );
                       },
                     ),
             ),
-            const Divider(color: Colors.white12),
+            Divider(color: dividerColor),
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
               child: Row(
@@ -85,10 +95,10 @@ class _CommentSheetState extends State<CommentSheet> {
                   Expanded(
                     child: TextField(
                       controller: _controller,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
+                      style: TextStyle(color: textColor),
+                      decoration: InputDecoration(
                         hintText: '说点什么...',
-                        hintStyle: TextStyle(color: Colors.white38),
+                        hintStyle: TextStyle(color: hintColor),
                         border: InputBorder.none,
                       ),
                     ),

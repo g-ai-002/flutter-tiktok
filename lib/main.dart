@@ -67,6 +67,12 @@ class TiktokApp extends StatelessWidget {
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, _) {
+          final isDark = themeProvider.isDarkMode;
+          SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+            statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+          ));
           return MaterialApp(
             title: AppConstants.appName,
             debugShowCheckedModeBanner: false,
@@ -116,8 +122,13 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? Colors.black : Colors.white;
+    final navBg = isDark ? Colors.black : Colors.white;
+    final borderColor = isDark ? Colors.white12 : Colors.black12;
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: bgColor,
       body: IndexedStack(
         index: _currentTab,
         children: [
@@ -127,15 +138,15 @@ class _MainShellState extends State<MainShell> {
         ],
       ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: Colors.white12, width: 0.5)),
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: borderColor, width: 0.5)),
         ),
         child: BottomNavigationBar(
           currentIndex: _currentTab,
           onTap: (i) => setState(() => _currentTab = i),
-          backgroundColor: Colors.black,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white38,
+          backgroundColor: navBg,
+          selectedItemColor: isDark ? Colors.white : Colors.black87,
+          unselectedItemColor: isDark ? Colors.white38 : Colors.black38,
           type: BottomNavigationBarType.fixed,
           selectedFontSize: 11,
           unselectedFontSize: 11,

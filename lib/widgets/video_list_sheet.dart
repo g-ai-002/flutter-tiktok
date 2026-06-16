@@ -9,6 +9,13 @@ class VideoListSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final subColor = isDark ? Colors.white70 : Colors.black54;
+    final subTextColor = isDark ? Colors.white38 : Colors.black38;
+    final iconColor = isDark ? Colors.white54 : Colors.black38;
+    final chipBg = isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.06);
+
     return SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -18,15 +25,17 @@ class VideoListSheet extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Row(
               children: [
-                const Text(
+                Text(
                   '视频列表',
-                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
                 _SortChip(
                   label: _sortLabel(provider.sortMode),
                   ascending: provider.sortAscending,
                   onTap: () => _showSortSheet(context, provider),
+                  textColor: subColor,
+                  chipBg: chipBg,
                 ),
               ],
             ),
@@ -41,6 +50,9 @@ class VideoListSheet extends StatelessWidget {
                   onDelete: video.id.startsWith('local_')
                       ? () => provider.removeVideo(video.id)
                       : null,
+                  textColor: textColor,
+                  subTextColor: subTextColor,
+                  iconColor: iconColor,
                 );
               },
             ),
@@ -64,9 +76,13 @@ class VideoListSheet extends StatelessWidget {
   }
 
   void _showSortSheet(BuildContext context, VideoProvider provider) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
+    final textColor = isDark ? Colors.white : Colors.black87;
+
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1A1A1A),
+      backgroundColor: bgColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -75,11 +91,11 @@ class VideoListSheet extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Padding(
-                padding: EdgeInsets.all(16),
+              Padding(
+                padding: const EdgeInsets.all(16),
                 child: Text(
                   '排序方式',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                  style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
               for (final mode in VideoSortMode.values)
@@ -87,7 +103,7 @@ class VideoListSheet extends StatelessWidget {
                   title: Text(
                     _sortLabel(mode),
                     style: TextStyle(
-                      color: provider.sortMode == mode ? const Color(0xFFFE2C55) : Colors.white,
+                      color: provider.sortMode == mode ? const Color(0xFFFE2C55) : textColor,
                       fontWeight: provider.sortMode == mode ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),
@@ -116,8 +132,10 @@ class _SortChip extends StatelessWidget {
   final String label;
   final bool ascending;
   final VoidCallback onTap;
+  final Color textColor;
+  final Color chipBg;
 
-  const _SortChip({required this.label, required this.ascending, required this.onTap});
+  const _SortChip({required this.label, required this.ascending, required this.onTap, required this.textColor, required this.chipBg});
 
   @override
   Widget build(BuildContext context) {
@@ -126,17 +144,17 @@ class _SortChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.12),
+          color: chipBg,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+            Text(label, style: TextStyle(color: textColor, fontSize: 12)),
             const SizedBox(width: 4),
             Icon(
               ascending ? Icons.arrow_upward : Icons.arrow_downward,
-              color: Colors.white54,
+              color: textColor,
               size: 14,
             ),
           ],
@@ -149,22 +167,25 @@ class _SortChip extends StatelessWidget {
 class _VideoTile extends StatelessWidget {
   final VideoModel video;
   final VoidCallback? onDelete;
+  final Color textColor;
+  final Color subTextColor;
+  final Color iconColor;
 
-  const _VideoTile({required this.video, this.onDelete});
+  const _VideoTile({required this.video, this.onDelete, required this.textColor, required this.subTextColor, required this.iconColor});
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: const Icon(Icons.videocam, color: Colors.white54),
+      leading: Icon(Icons.videocam, color: iconColor),
       title: Text(
         video.title,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        style: TextStyle(color: textColor, fontSize: 14),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
         _buildSubtitle(),
-        style: const TextStyle(color: Colors.white38, fontSize: 12),
+        style: TextStyle(color: subTextColor, fontSize: 12),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
