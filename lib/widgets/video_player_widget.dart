@@ -5,6 +5,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import '../services/log_service.dart';
 import '../utils/format.dart';
+import 'heart_animation.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
@@ -28,7 +29,9 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   bool _initialized = false;
   bool _hasError = false;
   bool _isPlaying = false;
-  final List<_HeartAnimation> _hearts = [];
+  final ValueNotifier<Duration> _positionNotifier = ValueNotifier(Duration.zero);
+  final ValueNotifier<Duration> _durationNotifier = ValueNotifier(Duration.zero);
+  final List<HeartAnimation> _hearts = [];
   StreamSubscription? _playingSub;
   StreamSubscription? _completedSub;
   StreamSubscription? _positionSub;
@@ -89,11 +92,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     _completedSub = _player.stream.completed.listen((_) {
       if (mounted) setState(() => _initialized = true);
     });
-    _positionSub = _player.stream.position.listen((_) {
-      if (mounted) setState(() {});
+    _positionSub = _player.stream.position.listen((pos) {
+      _positionNotifier.value = pos;
     });
-    _durationSub = _player.stream.duration.listen((_) {
-      if (mounted) setState(() {});
+    _durationSub = _player.stream.duration.listen((dur) {
+      _durationNotifier.value = dur;
     });
     _errorSub = _player.stream.error.listen((error) {
       LogService.error('视频播放错误: ${widget.videoUrl}', error);
@@ -140,7 +143,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   void _addHeart(Offset position) {
     final id = _heartId++;
     setState(() {
-      _hearts.add(_HeartAnimation(
+      _hearts.add(HeartAnimation(
         key: ValueKey(id),
         position: position,
         onDone: () {
@@ -153,6 +156,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   @override
   void dispose() {
     _cancelSubscriptions();
+    _positionNotifier.dispose();
+    _durationNotifier.dispose();
     _player.dispose();
     super.dispose();
   }
@@ -177,12 +182,6 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         child: CircularProgressIndicator(color: Colors.white),
       );
     }
-
-    final position = _player.state.position;
-    final duration = _player.state.duration;
-    final progress = duration.inMilliseconds > 0
-        ? position.inMilliseconds / duration.inMilliseconds
-        : 0.0;
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -209,15 +208,49 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
             left: 0,
             right: 0,
             bottom: 0,
-            child: GestureDetector(
+            child: _ProgressBar(
+              player: _player,
+              positionNotifier: _positionNotifier,
+              durationNotifier: _durationNotifier,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+}
+
+class _ProgressBar extends StatelessWidget {
+  final Player player;
+  final ValueNotifier<Duration> positionNotifier;
+  final ValueNotifier<Duration> durationNotifier;
+
+  const _ProgressBar({
+    required this.player,
+    required this.positionNotifier,
+    required this.durationNotifier,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<Duration>(
+      valueListenable: positionNotifier,
+      builder: (context, position, _) {
+        return ValueListenableBuilder<Duration>(
+          valueListenable: durationNotifier,
+          builder: (context, duration, _) {
+            final progress = duration.inMilliseconds > 0
+                ? position.inMilliseconds / duration.inMilliseconds
+                : 0.0;
+            return GestureDetector(
               onHorizontalDragUpdate: (details) {
-                if (!_initialized) return;
                 final renderBox = context.findRenderObject() as RenderBox;
                 final constraints = renderBox.constraints;
                 final dx = details.localPosition.dx.clamp(0.0, constraints.maxWidth);
                 final fraction = dx / constraints.maxWidth;
-                final target = _player.state.duration * fraction;
-                _player.seek(target);
+                final target = duration * fraction;
+                player.seek(target);
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -246,75 +279,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                   ),
                 ],
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-}
-
-class _HeartAnimation extends StatefulWidget {
-  final Offset position;
-  final VoidCallback onDone;
-
-  const _HeartAnimation({super.key, required this.position, required this.onDone});
-
-  @override
-  State<_HeartAnimation> createState() => _HeartAnimationState();
-}
-
-class _HeartAnimationState extends State<_HeartAnimation> with SingleTickerProviderStateMixin {
-  late final AnimationController _animController;
-  late final Animation<double> _scale;
-  late final Animation<double> _opacity;
-  late final Animation<Offset> _slide;
-
-  @override
-  void initState() {
-    super.initState();
-    _animController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    _scale = Tween<double>(begin: 0.3, end: 1.5).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
-    _opacity = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _animController, curve: const Interval(0.3, 1.0, curve: Curves.easeOut)),
-    );
-    _slide = Tween<Offset>(begin: Offset.zero, end: const Offset(0, -80)).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
-
-    _animController.forward().then((_) => widget.onDone());
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animController,
-      builder: (context, child) {
-        return Positioned(
-          left: widget.position.dx - 30,
-          top: widget.position.dy - 30,
-          child: Transform.translate(
-            offset: _slide.value,
-            child: Opacity(
-              opacity: _opacity.value,
-              child: Transform.scale(
-                scale: _scale.value,
-                child: const Icon(Icons.favorite, color: Color(0xFFFE2C55), size: 60),
-              ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
