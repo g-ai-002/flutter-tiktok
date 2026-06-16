@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:media_kit/media_kit.dart';
-import 'log_service.dart';
+import '../services/log_service.dart';
 
 class VideoPreloadService {
   static final VideoPreloadService instance = VideoPreloadService._();
@@ -62,5 +62,9 @@ class VideoPreloadService {
       p.dispose();
     }
     _cache.clear();
+  }
+
+  void reset() {
+    clear();
   }
 }

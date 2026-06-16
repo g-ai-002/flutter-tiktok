@@ -24,10 +24,8 @@ class _HomePageState extends State<HomePage> {
     provider.setCurrentIndex(index);
     final video = provider.videos[index];
     InteractionService.instance.addToHistory(video.id);
-    VideoPreloadService.instance.preloadAdjacent(
-      provider.videos.map((v) => v.url).toList(),
-      index,
-    );
+    final urls = provider.videos.map((v) => v.url).toList();
+    VideoPreloadService.instance.preloadAdjacent(urls, index);
   }
 
   Future<void> _refreshVideos() async {
