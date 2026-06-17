@@ -179,8 +179,14 @@
 - [x] 播放统计 (播放次数、观看时长、最后播放时间)
 - [x] 视频列表缩略图优化
 
-### 0.9.1 (PATCH) - 重构优化 (预留)
-- [ ] 代码重构与优化
+### 0.9.1 (PATCH) - 修复 CI 编译错误
+- [x] 修复 home_page.dart showModalBottomSheet 缺少闭合括号导致语法错误
+- [x] 修复 home_page.dart 未使用的 import (category_service.dart)
+- [x] 修复 home_page.dart const 构造函数建议
+- [x] 修复 settings_page.dart deprecated activeColor → activeTrackColor
+- [x] 修复 sleep_timer_service.dart unnecessary_brace_in_string_interps
+- [x] 修复 video_actions.dart unnecessary_underscores
+- [x] 修复 test/playback_stats_test.dart const 建议
 
 ## 长期规划 (1.0.x)
 

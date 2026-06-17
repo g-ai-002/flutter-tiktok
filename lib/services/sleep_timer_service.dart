@@ -28,7 +28,7 @@ class SleepTimerService extends ChangeNotifier {
       cancel();
     });
     notifyListeners();
-    LogService.info('定时关闭已启动: ${minutes}分钟');
+    LogService.info('定时关闭已启动: $minutes分钟');
   }
 
   void cancel() {

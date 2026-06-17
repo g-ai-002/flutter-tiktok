@@ -34,7 +34,7 @@ void main() {
 
     test('totalWatchDuration returns correct Duration', () {
       final stats = PlaybackStats(totalWatchMs: 65000);
-      expect(stats.totalWatchDuration, Duration(seconds: 65));
+      expect(stats.totalWatchDuration, const Duration(seconds: 65));
     });
   });
 
@@ -87,7 +87,7 @@ void main() {
       final service = PlaybackStatsService.instance;
       service.recordWatchTime('x', 10000);
       service.recordWatchTime('y', 20000);
-      expect(service.totalWatchTime, Duration(milliseconds: 30000));
+      expect(service.totalWatchTime, const Duration(milliseconds: 30000));
     });
   });
 }

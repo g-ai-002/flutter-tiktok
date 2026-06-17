@@ -23,7 +23,7 @@ class VideoActions extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<int>(
       valueListenable: InteractionService.instance.changeNotifier,
-      builder: (context, _, __) {
+      builder: (context, _, _) {
         final isFav = InteractionService.instance.isFavorite(video.id);
         return Column(
           mainAxisSize: MainAxisSize.min,

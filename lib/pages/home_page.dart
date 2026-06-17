@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../providers/video_provider.dart';
 import '../services/interaction_service.dart';
 import '../services/video_preload_service.dart';
-import '../services/category_service.dart';
 import '../services/playlist_service.dart';
 import '../services/sleep_timer_service.dart';
 import '../widgets/video_page.dart';
@@ -62,7 +61,7 @@ class _HomePageState extends State<HomePage> {
         if (provider.isLoading) {
           return Scaffold(
             backgroundColor: bgColor,
-            body: Center(child: CircularProgressIndicator()),
+            body: const Center(child: CircularProgressIndicator()),
           );
         }
 
@@ -220,9 +219,9 @@ class _HomePageState extends State<HomePage> {
                           _showPlaylistSheet(context, provider);
                         }
                       },
-                      itemBuilder: (_) => [
-                        PopupMenuItem(value: 'rename', child: Text('重命名', style: TextStyle(color: textColor))),
-                        PopupMenuItem(value: 'delete', child: Text('删除', style: TextStyle(color: Colors.red))),
+                      itemBuilder: (_) => const [
+                        PopupMenuItem(value: 'rename', child: Text('重命名')),
+                        PopupMenuItem(value: 'delete', child: Text('删除')),
                       ],
                     ),
                     onTap: () {
@@ -252,6 +251,7 @@ class _HomePageState extends State<HomePage> {
           ),
         );
       },
+    );
   }
 
   void _showCreatePlaylistDialog(BuildContext context) {
