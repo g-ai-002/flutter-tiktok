@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import '../models/comment.dart';
 import '../services/log_service.dart';
 import '../services/file_system_service.dart';
@@ -14,6 +15,12 @@ class InteractionService {
   static const int _maxHistory = 50;
   Timer? _saveTimer;
   bool _dirty = false;
+
+  final ValueNotifier<int> changeNotifier = ValueNotifier(0);
+
+  void _notifyChange() {
+    changeNotifier.value++;
+  }
 
   void _markDirty() {
     _dirty = true;
@@ -46,6 +53,7 @@ class InteractionService {
     );
     _comments.putIfAbsent(videoId, () => []).add(comment);
     _markDirty();
+    _notifyChange();
     LogService.info('添加评论: $videoId');
   }
 
@@ -60,6 +68,7 @@ class InteractionService {
       _favorites.add(videoId);
     }
     _markDirty();
+    _notifyChange();
     LogService.info('${_favorites.contains(videoId) ? "收藏" : "取消收藏"}: $videoId');
   }
 

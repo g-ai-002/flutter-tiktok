@@ -21,40 +21,45 @@ class VideoActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isFav = InteractionService.instance.isFavorite(video.id);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _ActionButton(
-          icon: video.isLiked ? Icons.favorite : Icons.favorite_border,
-          iconColor: video.isLiked ? const Color(0xFFFE2C55) : Colors.white,
-          label: video.likes,
-          onTap: onLike,
-        ),
-        const SizedBox(height: 20),
-        _ActionButton(
-          icon: Icons.comment,
-          label: video.comments,
-          onTap: onComment,
-        ),
-        const SizedBox(height: 20),
-        _ActionButton(
-          icon: isFav ? Icons.star : Icons.star_border,
-          iconColor: isFav ? const Color(0xFFFFD700) : Colors.white,
-          label: '收藏',
-          onTap: onFavorite,
-        ),
-        const SizedBox(height: 20),
-        _ActionButton(
-          icon: Icons.share,
-          label: video.shares,
-          onTap: () {
-            Share.share('${video.title} - ${video.description}');
-          },
-        ),
-        const SizedBox(height: 20),
-        _CircleAvatar(),
-      ],
+    return ValueListenableBuilder<int>(
+      valueListenable: InteractionService.instance.changeNotifier,
+      builder: (context, _, __) {
+        final isFav = InteractionService.instance.isFavorite(video.id);
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _ActionButton(
+              icon: video.isLiked ? Icons.favorite : Icons.favorite_border,
+              iconColor: video.isLiked ? const Color(0xFFFE2C55) : Colors.white,
+              label: video.likes,
+              onTap: onLike,
+            ),
+            const SizedBox(height: 20),
+            _ActionButton(
+              icon: Icons.comment,
+              label: video.comments,
+              onTap: onComment,
+            ),
+            const SizedBox(height: 20),
+            _ActionButton(
+              icon: isFav ? Icons.star : Icons.star_border,
+              iconColor: isFav ? const Color(0xFFFFD700) : Colors.white,
+              label: '收藏',
+              onTap: onFavorite,
+            ),
+            const SizedBox(height: 20),
+            _ActionButton(
+              icon: Icons.share,
+              label: video.shares,
+              onTap: () {
+                Share.share('${video.title} - ${video.description}');
+              },
+            ),
+            const SizedBox(height: 20),
+            const _CircleAvatar(),
+          ],
+        );
+      },
     );
   }
 }
