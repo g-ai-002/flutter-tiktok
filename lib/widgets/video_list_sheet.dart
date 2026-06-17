@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/video.dart';
 import '../providers/video_provider.dart';
 import '../services/category_service.dart';
+import '../services/playlist_service.dart';
 import '../utils/format.dart';
 
 class VideoListSheet extends StatefulWidget {
@@ -115,6 +116,9 @@ class _VideoListSheetState extends State<VideoListSheet> {
                       : null,
                   onCategory: video.id.startsWith('local_') && !_batchMode
                       ? () => _showCategoryPicker(context, video)
+                      : null,
+                  onPlaylist: video.id.startsWith('local_') && !_batchMode
+                      ? () => _showAddToPlaylistSheet(context, video)
                       : null,
                   textColor: textColor,
                   subTextColor: subTextColor,
@@ -403,6 +407,63 @@ class _VideoListSheetState extends State<VideoListSheet> {
       ),
     );
   }
+
+  void _showAddToPlaylistSheet(BuildContext context, VideoModel video) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final subColor = isDark ? Colors.white54 : Colors.black54;
+    final playlists = PlaylistService.instance.playlists;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: bgColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  '添加到播放列表',
+                  style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+              ),
+              if (playlists.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Text('暂无播放列表', style: TextStyle(color: subColor)),
+                )
+              else
+                ...playlists.map((pl) {
+                  final isIn = PlaylistService.instance.isInPlaylist(pl.id, video.id);
+                  return ListTile(
+                    leading: Icon(
+                      isIn ? Icons.check_circle : Icons.playlist_play,
+                      color: isIn ? const Color(0xFFFE2C55) : subColor,
+                    ),
+                    title: Text(pl.name, style: TextStyle(color: textColor)),
+                    onTap: () {
+                      if (isIn) {
+                        PlaylistService.instance.removeVideo(pl.id, video.id);
+                      } else {
+                        PlaylistService.instance.addVideo(pl.id, video.id);
+                      }
+                      Navigator.pop(context);
+                    },
+                  );
+                }),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _SortChip extends StatelessWidget {
@@ -481,6 +542,7 @@ class _VideoTile extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final VoidCallback? onCategory;
+  final VoidCallback? onPlaylist;
   final Color textColor;
   final Color subTextColor;
   final Color iconColor;
@@ -493,6 +555,7 @@ class _VideoTile extends StatelessWidget {
     this.onEdit,
     this.onDelete,
     this.onCategory,
+    this.onPlaylist,
     required this.textColor,
     required this.subTextColor,
     required this.iconColor,
@@ -528,6 +591,13 @@ class _VideoTile extends StatelessWidget {
           : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (onPlaylist != null)
+                  IconButton(
+                    icon: Icon(Icons.playlist_add, color: iconColor, size: 18),
+                    onPressed: onPlaylist,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  ),
                 if (onCategory != null)
                   IconButton(
                     icon: Icon(Icons.folder_outlined, color: iconColor, size: 18),

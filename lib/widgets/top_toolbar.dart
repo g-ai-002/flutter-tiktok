@@ -7,12 +7,16 @@ class TopToolbar extends StatelessWidget {
   final VoidCallback onImport;
   final VoidCallback onManage;
   final VoidCallback onHistory;
+  final VoidCallback onPlaylist;
+  final VoidCallback onSleepTimer;
 
   const TopToolbar({
     super.key,
     required this.onImport,
     required this.onManage,
     required this.onHistory,
+    required this.onPlaylist,
+    required this.onSleepTimer,
   });
 
   @override
@@ -31,6 +35,10 @@ class TopToolbar extends StatelessWidget {
             iconBgColor: iconBgColor,
           ),
           const Spacer(),
+          _ToolIcon(icon: Icons.bedtime_outlined, onTap: onSleepTimer, bgColor: iconBgColor, iconColor: iconColor),
+          const SizedBox(width: 12),
+          _ToolIcon(icon: Icons.playlist_play, onTap: onPlaylist, bgColor: iconBgColor, iconColor: iconColor),
+          const SizedBox(width: 12),
           _ToolIcon(icon: Icons.history, onTap: onHistory, bgColor: iconBgColor, iconColor: iconColor),
           const SizedBox(width: 12),
           _ToolIcon(icon: Icons.file_upload_outlined, onTap: onImport, bgColor: iconBgColor, iconColor: iconColor),

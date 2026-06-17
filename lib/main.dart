@@ -15,6 +15,8 @@ import 'services/interaction_service.dart';
 import 'services/log_service.dart';
 import 'services/storage_service.dart';
 import 'services/category_service.dart';
+import 'services/playlist_service.dart';
+import 'services/playback_stats_service.dart';
 import 'theme/app_theme.dart';
 import 'utils/constants.dart';
 
@@ -42,6 +44,8 @@ Future<void> main() async {
   await LogService.init();
   await InteractionService.instance.init();
   await CategoryService.instance.init();
+  await PlaylistService.instance.init();
+  await PlaybackStatsService.instance.init();
   LogService.info('应用启动: ${AppConstants.appName} v${AppConstants.version}');
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
