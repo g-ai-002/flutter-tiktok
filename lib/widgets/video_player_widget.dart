@@ -166,7 +166,9 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         key: ValueKey(id),
         position: position,
         onDone: () {
-          setState(() => _hearts.removeWhere((h) => h.key == ValueKey(id)));
+          if (mounted) {
+            setState(() => _hearts.removeWhere((h) => h.key == ValueKey(id)));
+          }
         },
       ));
     });
@@ -253,53 +255,50 @@ class _ProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<Duration>(
-      valueListenable: positionNotifier,
-      builder: (context, position, _) {
-        return ValueListenableBuilder<Duration>(
-          valueListenable: durationNotifier,
-          builder: (context, duration, _) {
-            final progress = duration.inMilliseconds > 0
-                ? position.inMilliseconds / duration.inMilliseconds
-                : 0.0;
-            return GestureDetector(
-              onHorizontalDragUpdate: (details) {
-                final renderBox = context.findRenderObject() as RenderBox;
-                final constraints = renderBox.constraints;
-                final dx = details.localPosition.dx.clamp(0.0, constraints.maxWidth);
-                final fraction = dx / constraints.maxWidth;
-                final target = duration * fraction;
-                player.seek(target);
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: Colors.white24,
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFE2C55)),
-                    minHeight: 3,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          formatDuration(position),
-                          style: const TextStyle(color: Colors.white70, fontSize: 11),
-                        ),
-                        Text(
-                          formatDuration(duration),
-                          style: const TextStyle(color: Colors.white70, fontSize: 11),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
+    return ListenableBuilder(
+      listenable: Listenable.merge([positionNotifier, durationNotifier]),
+      builder: (context, _) {
+        final position = positionNotifier.value;
+        final duration = durationNotifier.value;
+        final progress = duration.inMilliseconds > 0
+            ? position.inMilliseconds / duration.inMilliseconds
+            : 0.0;
+        return GestureDetector(
+          onHorizontalDragUpdate: (details) {
+            final renderBox = context.findRenderObject() as RenderBox;
+            final constraints = renderBox.constraints;
+            final dx = details.localPosition.dx.clamp(0.0, constraints.maxWidth);
+            final fraction = dx / constraints.maxWidth;
+            final target = duration * fraction;
+            player.seek(target);
           },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              LinearProgressIndicator(
+                value: progress,
+                backgroundColor: Colors.white24,
+                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFE2C55)),
+                minHeight: 3,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      formatDuration(position),
+                      style: const TextStyle(color: Colors.white70, fontSize: 11),
+                    ),
+                    Text(
+                      formatDuration(duration),
+                      style: const TextStyle(color: Colors.white70, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
