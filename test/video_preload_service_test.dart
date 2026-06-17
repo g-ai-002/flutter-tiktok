@@ -6,7 +6,7 @@ void main() {
     final service = VideoPreloadService.instance;
 
     tearDown(() {
-      service.reset();
+      service.clear();
     });
 
     test('preload with invalid url does not throw', () {
@@ -33,9 +33,9 @@ void main() {
       expect(() => service.clear(), returnsNormally);
     });
 
-    test('reset clears all cached players', () {
+    test('clear empties cached players', () {
       service.preload('/nonexistent/path/video.mp4');
-      service.reset();
+      service.clear();
       expect(service.getPlayer('/nonexistent/path/video.mp4'), isNull);
     });
   });

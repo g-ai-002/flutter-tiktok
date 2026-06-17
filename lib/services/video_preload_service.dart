@@ -64,8 +64,4 @@ class VideoPreloadService {
     }
     _cache.clear();
   }
-
-  void reset() {
-    clear();
-  }
 }

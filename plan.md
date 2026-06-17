@@ -199,6 +199,11 @@
 - [x] PlaybackStatsService 添加 clear() 方法用于测试隔离
 - [x] playback_stats_test 添加 setUp 隔离单例状态
 
+### 0.9.4 (PATCH) - 重构优化
+- [x] 移除 VideoPreloadService 冗余的 reset() 方法（与 clear() 等价）
+- [x] 测试用例迁移至 clear()
+- [x] README.md 更新最新 5 个版本介绍，旧版本压缩
+
 ## 长期规划 (1.0.x)
 
 ### 1.0.0 (MAJOR) - 完整功能
