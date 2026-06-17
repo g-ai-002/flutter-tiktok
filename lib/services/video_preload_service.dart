@@ -25,7 +25,8 @@ class VideoPreloadService {
     }
 
     final player = Player();
-    player.open(Media(url));
+    player.setVolume(0);
+    player.open(Media(url), play: false);
     player.stream.completed.listen((_) {
       LogService.info('预加载完成: $url');
     });

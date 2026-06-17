@@ -83,7 +83,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
     final isNetwork = uri.hasScheme && (uri.scheme == 'http' || uri.scheme == 'https');
     if (isNetwork) {
-      _player.open(Media(widget.videoUrl));
+      _player.open(Media(widget.videoUrl), play: false);
     } else {
       final file = File(widget.videoUrl);
       if (!file.existsSync()) {
@@ -91,7 +91,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         LogService.error('本地视频文件不存在: ${widget.videoUrl}');
         return;
       }
-      _player.open(Media(widget.videoUrl));
+      _player.open(Media(widget.videoUrl), play: false);
     }
 
     _player.setPlaylistMode(PlaylistMode.loop);
@@ -129,7 +129,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     if (widget.isActive) {
       if (_stopped) {
         _stopped = false;
-        _player.open(Media(widget.videoUrl));
+        _player.open(Media(widget.videoUrl), play: false);
         _player.setPlaylistMode(PlaylistMode.loop);
       }
       if (widget.autoPlay) {

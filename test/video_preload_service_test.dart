@@ -32,5 +32,11 @@ void main() {
     test('clear does not throw', () {
       expect(() => service.clear(), returnsNormally);
     });
+
+    test('reset clears all cached players', () {
+      service.preload('/nonexistent/path/video.mp4');
+      service.reset();
+      expect(service.getPlayer('/nonexistent/path/video.mp4'), isNull);
+    });
   });
 }

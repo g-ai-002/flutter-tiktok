@@ -188,6 +188,12 @@
 - [x] 修复 video_actions.dart unnecessary_underscores
 - [x] 修复 test/playback_stats_test.dart const 建议
 
+### 0.9.2 (PATCH) - 修复 issue #9 多视频同时发声
+- [x] 修复 VideoPreloadService 预加载时视频自动播放并发声 (fix #9)
+- [x] 修复 VideoPlayerWidget 创建时短暂自动播放导致相邻视频同时发声
+- [x] 预加载 Player 强制静音并禁用 autoplay
+- [x] 添加预加载/播放器静音相关测试用例
+
 ## 长期规划 (1.0.x)
 
 ### 1.0.0 (MAJOR) - 完整功能
