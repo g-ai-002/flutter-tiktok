@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import '../services/log_service.dart';
+import '../services/playback_stats_service.dart';
 import '../utils/format.dart';
 import 'heart_animation.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
+  final String videoId;
   final String videoUrl;
   final bool isActive;
   final bool autoPlay;
@@ -15,6 +17,7 @@ class VideoPlayerWidget extends StatefulWidget {
 
   const VideoPlayerWidget({
     super.key,
+    required this.videoId,
     required this.videoUrl,
     required this.isActive,
     this.autoPlay = true,
@@ -32,6 +35,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   bool _hasError = false;
   bool _isPlaying = false;
   bool _stopped = false;
+  DateTime? _watchStartTime;
   final ValueNotifier<Duration> _positionNotifier = ValueNotifier(Duration.zero);
   final ValueNotifier<Duration> _durationNotifier = ValueNotifier(Duration.zero);
   final List<HeartAnimation> _hearts = [];
@@ -65,6 +69,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     _initialized = false;
     _isPlaying = false;
     _stopped = false;
+    _watchStartTime = null;
     _heartId = 0;
     _hearts.clear();
 
@@ -129,10 +134,21 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       }
       if (widget.autoPlay) {
         _player.play();
+        _watchStartTime ??= DateTime.now();
+        PlaybackStatsService.instance.recordPlay(widget.videoId);
       }
     } else {
+      _recordWatchTime();
       _player.stop();
       _stopped = true;
+    }
+  }
+
+  void _recordWatchTime() {
+    if (_watchStartTime != null) {
+      final elapsed = DateTime.now().difference(_watchStartTime!).inMilliseconds;
+      PlaybackStatsService.instance.recordWatchTime(widget.videoId, elapsed);
+      _watchStartTime = null;
     }
   }
 
@@ -176,6 +192,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   @override
   void dispose() {
+    _recordWatchTime();
     _cancelSubscriptions();
     _positionNotifier.dispose();
     _durationNotifier.dispose();

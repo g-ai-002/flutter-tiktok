@@ -72,6 +72,7 @@ class _VideoPageState extends State<VideoPage> with WidgetsBindingObserver {
       fit: StackFit.expand,
       children: [
         VideoPlayerWidget(
+          videoId: widget.video.id,
           videoUrl: widget.video.url,
           isActive: widget.isActive,
           autoPlay: widget.autoPlay,

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../models/video.dart';
 import '../providers/video_provider.dart';
 import '../services/interaction_service.dart';
+import '../services/playback_stats_service.dart';
+import '../utils/format.dart';
 import '../widgets/full_screen_video_list.dart';
 import 'settings_page.dart';
 
@@ -27,6 +29,9 @@ class ProfilePage extends StatelessWidget {
 
     final totalComments = interaction.totalComments;
     final totalLikes = provider.videos.where((v) => v.isLiked).length;
+    final stats = PlaybackStatsService.instance;
+    final totalPlays = stats.totalPlayCount;
+    final totalWatch = stats.totalWatchTime;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -71,6 +76,17 @@ class ProfilePage extends StatelessWidget {
                   _StatItem(label: '历史', value: '${historyVideos.length}', textColor: textColor, subColor: subColor),
                   _StatItem(label: '点赞', value: '$totalLikes', textColor: textColor, subColor: subColor),
                   _StatItem(label: '评论', value: '$totalComments', textColor: textColor, subColor: subColor),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _StatItem(label: '播放次数', value: '$totalPlays', textColor: textColor, subColor: subColor),
+                  _StatItem(label: '观看时长', value: formatDuration(totalWatch), textColor: textColor, subColor: subColor),
                 ],
               ),
             ),
