@@ -93,4 +93,8 @@ class PlaybackStatsService {
       LogService.error('加载播放统计失败', e, st);
     }
   }
+
+  void clear() {
+    _stats.clear();
+  }
 }

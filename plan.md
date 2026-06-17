@@ -194,6 +194,11 @@
 - [x] 预加载 Player 强制静音并禁用 autoplay
 - [x] 添加预加载/播放器静音相关测试用例
 
+### 0.9.3 (PATCH) - 修复 CI 测试失败
+- [x] 修复 PlaybackStatsService 单例在测试间状态污染导致 totalPlayCount/totalWatchTime 测试失败
+- [x] PlaybackStatsService 添加 clear() 方法用于测试隔离
+- [x] playback_stats_test 添加 setUp 隔离单例状态
+
 ## 长期规划 (1.0.x)
 
 ### 1.0.0 (MAJOR) - 完整功能

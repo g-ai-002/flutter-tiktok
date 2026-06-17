@@ -39,6 +39,10 @@ void main() {
   });
 
   group('PlaybackStatsService', () {
+    setUp(() {
+      PlaybackStatsService.instance.clear();
+    });
+
     test('getStats returns default stats for unknown video', () {
       final stats = PlaybackStatsService.instance.getStats('unknown');
       expect(stats.playCount, 0);
