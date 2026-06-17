@@ -164,8 +164,12 @@
 - [x] 分享功能 (调用系统分享)
 - [x] 自动连播开关
 
-### 0.8.1 (PATCH) - 重构优化 (预留)
-- [ ] 代码重构与优化
+### 0.8.1 (PATCH) - 重构优化
+- [x] 修复 CI 测试 batchDelete 竞态条件失败
+- [x] 修复收藏按钮点击后 UI 不更新 (fix #8)
+- [x] 修复心形动画 onDone 回调缺少 mounted 检查
+- [x] 优化进度条合并 ValueListenableBuilder 减少重建
+- [x] InteractionService 添加 changeNotifier 通知 UI 刷新
 
 ## 长期规划 (1.0.x)
 
