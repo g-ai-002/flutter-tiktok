@@ -12,6 +12,7 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       final storage = await StorageService.instance;
       provider = VideoProvider(storage);
+      await Future.delayed(const Duration(milliseconds: 100));
     });
 
     test('autoPlay 默认为 true', () {
